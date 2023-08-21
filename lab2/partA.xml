@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<test lab="lab2_parta">
+
+<description>
+    This defines several tests for lab 2:
+    - basic pings from client to servers
+    - traceroutes from client to servers
+    - web page downloads from servers to client
+    Invoke generic_tester.py with the -f flag to stop after
+    the first failed test.
+</description>
+
+<!-- Clean up environment from prior runs -->
+<init>
+  <run_command>killall ovs-controller</run_command>
+  <run_command>mn -c</run_command>
+</init>
+
+<!-- Set up the configs and wait for routing to converge -->
+<startup>
+  <run_command>python load_configs.py configs</run_command>
+  <run_command>python config_i2_hosts.py</run_command>
+  <run_command>python ../tester/converged.py i2</run_command>
+</startup>
+
+<test_cases>
+  <!-- Test if interfaces at each host are up -->
+  <hostif points="5">SEAT</hostif>
+  <hostif points="5">SALT</hostif>
+  <hostif points="5">NEWY</hostif>
+  <hostif points="5">LOSA</hostif>
+  <hostif points="5">HOUS</hostif>
+  <hostif points="5">WASH</hostif>
+  <hostif points="5">CHIC</hostif>
+  <hostif points="5">ATLA</hostif>
+  <!-- Test if each router interface is up -->
+  <routerif points="5">CHIC newy</routerif>
+  <routerif points="5">CHIC wash</routerif>
+  <routerif points="5">CHIC atla</routerif>
+  <routerif points="5">CHIC kans</routerif>
+  <routerif points="5">NEWY chic</routerif>
+  <routerif points="5">NEWY wash</routerif>
+  <routerif points="5">WASH chic</routerif>
+  <routerif points="5">WASH atla</routerif>
+  <routerif points="5">ATLA wash</routerif>
+  <routerif points="5">ATLA chic</routerif>
+  <routerif points="5">ATLA hous</routerif>
+  <routerif points="5">HOUS atla</routerif>
+  <routerif points="5">HOUS kans</routerif>
+  <routerif points="5">HOUS losa</routerif>
+  <routerif points="5">KANS chic</routerif>
+  <routerif points="5">KANS hous</routerif>
+  <routerif points="5">KANS salt</routerif>
+  <routerif points="5">SALT seat</routerif>
+  <routerif points="5">SALT kans</routerif>
+  <routerif points="5">SALT losa</routerif>
+  <routerif points="5">LOSA seat</routerif>
+  <routerif points="5">LOSA hous</routerif>
+  <routerif points="5">LOSA salt</routerif>
+  <routerif points="5">SEAT salt</routerif>
+  <routerif points="5">SEAT losa</routerif>
+  <!-- Test if link costs are correctly configured -->
+  <linkcost points="5">CHIC newy</linkcost>
+  <linkcost points="5">CHIC wash</linkcost>
+  <linkcost points="5">CHIC atla</linkcost>
+  <linkcost points="5">CHIC kans</linkcost>
+  <linkcost points="5">NEWY chic</linkcost>
+  <linkcost points="5">NEWY wash</linkcost>
+  <linkcost points="5">WASH chic</linkcost>
+  <linkcost points="5">WASH atla</linkcost>
+  <linkcost points="5">ATLA wash</linkcost>
+  <linkcost points="5">ATLA chic</linkcost>
+  <linkcost points="5">ATLA hous</linkcost>
+  <linkcost points="5">HOUS atla</linkcost>
+  <linkcost points="5">HOUS kans</linkcost>
+  <linkcost points="5">HOUS losa</linkcost>
+  <linkcost points="5">KANS chic</linkcost>
+  <linkcost points="5">KANS hous</linkcost>
+  <linkcost points="5">KANS salt</linkcost>
+  <linkcost points="5">SALT seat</linkcost>
+  <linkcost points="5">SALT kans</linkcost>
+  <linkcost points="5">SALT losa</linkcost>
+  <linkcost points="5">LOSA seat</linkcost>
+  <linkcost points="5">LOSA hous</linkcost>
+  <linkcost points="5">LOSA salt</linkcost>
+  <linkcost points="5">SEAT salt</linkcost>
+  <linkcost points="5">SEAT losa</linkcost>
+  <!-- Test if traceroute between every host pair works -->
+  <path points="10">SEAT-host NEWY-host</path>
+  <path points="10">SEAT-host KANS-host</path>
+  <path points="10">SEAT-host CHIC-host</path>
+  <path points="10">SEAT-host ATLA-host</path>
+  <path points="10">SEAT-host WASH-host</path>
+  <path points="10">LOSA-host NEWY-host</path>
+  <path points="10">LOSA-host KANS-host</path>
+  <path points="10">LOSA-host CHIC-host</path>
+  <path points="10">LOSA-host ATLA-host</path>
+  <path points="10">LOSA-host WASH-host</path>
+  <path points="10">KANS-host LOSA-host</path>
+  <path points="10">KANS-host ATLA-host</path>
+  <path points="10">KANS-host WASH-host</path>
+  <path points="10">KANS-host NEWY-host</path>
+  <path points="10">CHIC-host SEAT-host</path>
+  <path points="10">CHIC-host LOSA-host</path>
+  <path points="10">CHIC-host SALT-host</path>
+  <path points="10">WASH-host KANS-host</path>
+  <path points="10">WASH-host LOSA-host</path>
+  <path points="10">WASH-host SALT-host</path>
+  <path points="10">WASH-host HOUS-host</path>
+  <path points="10">WASH-host SEAT-host</path>
+  <path points="10">NEWY-host KANS-host</path>
+  <path points="10">NEWY-host LOSA-host</path>
+  <path points="10">NEWY-host SALT-host</path>
+  <path points="10">NEWY-host HOUS-host</path>
+  <path points="10">NEWY-host SEAT-host</path>
+</test_cases>
+
+</test>

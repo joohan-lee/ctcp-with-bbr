@@ -1,0 +1,4 @@
+#!/usr/bin/expect
+spawn screen -r sr
+expect "<-- Ready to process packets -->"
+

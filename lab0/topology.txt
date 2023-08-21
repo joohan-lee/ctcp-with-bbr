@@ -1,0 +1,18 @@
+# The graph is undirected (i.e. if you set a link from 1 to 2 no need to write 2 to 1).
+# Each line is a link between two switches. Each switch id must be an integer.
+# The name of this file must be "topology.txt"
+# One host is automatically connected to each switch.
+
+# Topology with loop.
+# This is the topology shown in Figure 2 of the assignment.
+# Should be used to answer questions.
+1 2
+2 3
+3 4
+4 1
+5 1
+5 2
+5 3
+5 4
+
+# Feel free to build your own topology ...
