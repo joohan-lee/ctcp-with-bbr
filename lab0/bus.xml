@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<test lab="lab0">
+
+<description>
+  This tests if the learning controller works correctly for a bus topology.
+</description>
+
+<!-- These commands set up the testing environment -->
+<init>
+  <run_command>mn -c</run_command>
+  <run_command>cp topology_bus.txt topology.txt</run_command>
+  <run_command>killall ryu-manager</run_command>
+  <run_command sleep="10">/usr/local/bin/ryu-manager ryu_controller.py 2>&amp;1 &amp;</run_command>
+</init>
+
+<test_cases>
+   <!-- Tests ping between every pair of nodes -->
+   <pingall points="20"></pingall> 
+</test_cases>
+
+</test>

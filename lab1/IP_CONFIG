@@ -1,0 +1,10 @@
+server1 192.168.2.2
+server2 172.64.3.10
+client    10.0.1.100
+sw0-eth1 192.168.2.1
+sw0-eth2 172.64.3.1
+sw0-eth3 10.0.1.1
+server2-eth1 172.64.3.17
+server3-eth0 172.64.3.18
+server2-eth2 172.64.3.33
+server4-eth0 172.64.3.34
