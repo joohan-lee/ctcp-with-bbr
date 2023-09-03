@@ -69,7 +69,7 @@ void sr_init(struct sr_instance* sr)
 
 void sr_handlepacket(struct sr_instance* sr,
         uint8_t * packet/* lent */,
-        unsigned int len,
+        unsigned int len /* bytes */,
         char* interface/* lent */)
 {
   /* REQUIRES */
@@ -80,6 +80,36 @@ void sr_handlepacket(struct sr_instance* sr,
   printf("*** -> Received packet of length %d \n",len);
 
   /* fill in code here */
+  sr_ip_hdr_t *iphdr = (sr_ip_hdr_t *)(packet);
+  print_hdr_ip(packet); /* XXX: print all fields of header in packet*/
+
+  /* Determine if the packet is IP Packet or ARP Packet */
+  if(ethertype(packet)==ethertype_ip){
+    printf("ip packet");
+    /* -- Check that the packet is valid -- */
+    /* Check if IP packet is large enough to hold an IP header */
+    if(iphdr->ip_hl < 20){
+      /* HACK Should check size of header is lower than 60 bytes? */
+      printf("ERR: Packet size is lower than 20.\n");
+      return;
+    }
+
+    /* Check if header has a correct checksum */
+    printf("--------------------------\n");
+    if(cksum(iphdr, iphdr->ip_hl) != iphdr->ip_sum){
+      printf("ERR: Invalid checksum.\n");
+      return;
+    }else{
+      printf("Valid Checksum.\n");
+    }
+
+  }
+  else if(ethertype(packet)==ethertype_arp){
+    printf("arp packet\n");
+  }
+  
+
+  
 
 }/* end sr_ForwardPacket */
 
