@@ -20,6 +20,56 @@ static volatile int keep_running_arpcache = 1;
 */
 void sr_arpcache_sweepreqs(struct sr_instance *sr) { 
     /* Fill this in */
+    Debug("sr_arpcache_sweepreqs called.\n");
+
+    struct sr_arpreq *arpreq_pt = (struct sr_arpreq*)(sr->cache.requests);
+    
+    while(arpreq_pt){
+        
+        /* Check if already requested 5 times. 
+         * If so, a destination host unreachable should go back to all the sender of packets
+         * that were waiting on a reply to this ARP request.
+         */
+
+        /* Create ARP request packet */
+        uint32_t arp_req_pkt_len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
+        uint8_t *arp_req_pkt = (uint8_t*)malloc(arp_req_pkt_len);
+
+        /* Ethernet header */
+        struct sr_ethernet_hdr* arp_req_e_hdr = (struct sr_ethernet_hdr*)arp_req_pkt;
+        struct sr_if *out_sr_if = sr_get_interface(sr, arpreq_pt->packets->iface);
+        memset(arp_req_e_hdr->ether_dhost, 0xFF, ETHER_ADDR_LEN); /* Should broadcast*/
+        memcpy(arp_req_e_hdr->ether_shost, out_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
+        arp_req_e_hdr->ether_type = htons(ethertype_arp);
+
+        /*Debug("--- Created ethernet header in arp req packet \n");
+        print_hdr_eth(arp_req_e_hdr); /* Debug*/
+
+        /* ARP header */
+        struct sr_arp_hdr* arp_req_a_hdr = (struct sr_arp_hdr*)(arp_req_pkt + sizeof(struct sr_ethernet_hdr));
+        arp_req_a_hdr->ar_hrd=htons(arp_hrd_ethernet);
+        arp_req_a_hdr->ar_pro=htons(ethertype_ip);
+        arp_req_a_hdr->ar_hln = 6;
+        arp_req_a_hdr->ar_pln = 4;
+        arp_req_a_hdr->ar_op=htons(arp_op_request);
+        memcpy(arp_req_a_hdr->ar_sha, out_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
+        arp_req_a_hdr->ar_sip=out_sr_if->ip;
+        memset(arp_req_a_hdr->ar_tha, 0x00, ETHER_ADDR_LEN);
+        arp_req_a_hdr->ar_tip=arpreq_pt->ip;
+
+        /* Debug("--- Created arp header in arp req packet \n");
+        print_hdr_arp(arp_req_a_hdr); /* Debug */
+
+        /* Send ARP request */
+        int send_res = sr_send_packet(sr, arp_req_pkt, arp_req_pkt_len, out_sr_if->name);
+        /*free(arp_req_pkt); /* HACK: Free here? */
+        /* TODO: Update sent time */
+        /* TODO: Update times_sent */
+
+        arpreq_pt = arpreq_pt->next;
+        
+    }
+    
 }
 
 /* You should not need to touch the rest of this code. */
