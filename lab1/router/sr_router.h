@@ -67,6 +67,22 @@ int sr_read_from_server(struct sr_instance* );
 /* -- sr_router.c -- */
 void sr_init(struct sr_instance* );
 void sr_handlepacket(struct sr_instance* , uint8_t * , unsigned int , char* );
+int is_valid_ip_cksum(struct sr_ip_hdr*);
+int is_valid_icmp_cksum(sr_icmp_hdr_t*);
+void set_eth_hdr(sr_ethernet_hdr_t* ,
+                  uint8_t dhost[ETHER_ADDR_LEN],
+                  uint8_t shost[ETHER_ADDR_LEN],
+                  uint16_t);
+void set_ip_hdr(sr_ip_hdr_t *iphdr,
+                  uint16_t ip_len,
+                  uint8_t ip_p,
+                  uint32_t ip_dst,
+                  uint32_t ip_src 
+                  );
+void set_icmp_hdr(sr_icmp_hdr_t*, uint8_t, uint8_t);
+void set_icmp3_hdr(sr_icmp_t3_hdr_t*, uint8_t, uint8_t, unsigned int);
+int is_router_ip(struct sr_instance* sr, uint32_t dst_ip);
+struct sr_rt* find_sr_rt_by_ip(struct sr_instance*, uint32_t);
 
 /* -- sr_if.c -- */
 void sr_add_interface(struct sr_instance* , const char* );
@@ -75,3 +91,12 @@ void sr_set_ether_addr(struct sr_instance* , const unsigned char* );
 void sr_print_if_list(struct sr_instance* );
 
 #endif /* SR_ROUTER_H */
+
+
+
+/* DEFINE HEADER LENGTH */
+#define ALL_HEADER_SIZE (sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_hdr_t))
+#define ALL_HEADER_ICMP3_SIZE (sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t))
+#define ICMP_HDR_PTR(buf) ((sr_icmp_hdr_t*)(((uint8_t*)(buf)) + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t)))
+#define ICMP3_HDR_PTR(buf) ((sr_icmp_t3_hdr_t*)(((uint8_t*)(buf)) + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t)))
+#define ICMP_DATA_PTR(buf) ((sr_icmp_hdr_t*)(((uint8_t*)(buf)) + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_hdr_t)))

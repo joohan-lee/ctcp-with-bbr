@@ -23,13 +23,92 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
     Debug("sr_arpcache_sweepreqs called.\n");
 
     struct sr_arpreq *arpreq_pt = (struct sr_arpreq*)(sr->cache.requests);
+    struct sr_arpreq *prev = 0;
     
     while(arpreq_pt){
+        time_t curtime = time(NULL);
+        if(difftime(curtime, arpreq_pt->sent) < 1.0){
+            continue;
+        }
         
-        /* Check if already requested 5 times. 
-         * If so, a destination host unreachable should go back to all the sender of packets
-         * that were waiting on a reply to this ARP request.
-         */
+        if(arpreq_pt->times_sent >=5){
+            /* Already sent request 5 times.
+             * Destination host unreachable should go back to all the sender of packets
+             * that were waiting on a reply to this ARP request.
+             * Destination host unreachable (type 3, code 1) Sent after five ARP requests were sent to the next-hop IP 
+             * without a response.
+             */
+            /* Copy the packet from sr_arpreq->packets to send ICMP message back to all senders of packets that were waiting on */
+            uint32_t new_pkt_for_icmp_len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t);
+            uint8_t *new_pkt_for_icmp = (uint8_t*)malloc(new_pkt_for_icmp_len);
+            /*uint8_t *copied_pkt_for_icmp = (uint8_t*)malloc(arpreq_pt->packets->len); + memcpy*/
+            uint8_t *org_pkt = (uint8_t*)(arpreq_pt->packets->buf);
+
+            /* Ethernet header of new_pkt_for_icmp */
+            sr_ethernet_hdr_t *new_pkt_e_hdr = (sr_ethernet_hdr_t*)new_pkt_for_icmp;
+            sr_ethernet_hdr_t *org_pkt_e_hdr = (sr_ethernet_hdr_t*)org_pkt;
+            memcpy(new_pkt_e_hdr->ether_dhost, org_pkt_e_hdr->ether_shost, ETHER_ADDR_LEN); /* MAC addr of sender of packets that were waiting */
+            memcpy(new_pkt_e_hdr->ether_shost, org_pkt_e_hdr->ether_dhost, ETHER_ADDR_LEN); /* Received interface addr */
+            /*memcpy(new_pkt_e_hdr->ether_shost, out_sr_if->addr, ETHER_ADDR_LEN); /* Received interface addr */
+            new_pkt_e_hdr->ether_type = org_pkt_e_hdr->ether_type;
+
+            /* Find the outgoing interface to send ICMP message using MAC addr of outgoing iface */
+            struct sr_if *out_sr_if = NULL;
+            struct sr_if *if_walker = sr->if_list;
+            while(if_walker){
+                if(memcmp(if_walker->addr, new_pkt_e_hdr->ether_shost,ETHER_ADDR_LEN)==0){
+                    printf("Found interface!\n");
+                    out_sr_if = if_walker;
+                    printf("iface: %s!!\n", out_sr_if->name);
+                    break;
+                }
+                if_walker = if_walker->next;
+            }
+
+            /* IP header of new_pkt_for_icmp */
+            sr_ip_hdr_t *new_pkt_ip_hdr = (sr_ip_hdr_t*)(new_pkt_for_icmp + sizeof(sr_ethernet_hdr_t));
+            sr_ip_hdr_t *org_pkt_ip_hdr = (sr_ip_hdr_t*)(org_pkt + sizeof(sr_ethernet_hdr_t));
+            new_pkt_ip_hdr->ip_hl=(int)(sizeof(sr_ip_hdr_t) / 4);
+            new_pkt_ip_hdr->ip_v=4;
+            new_pkt_ip_hdr->ip_tos=0;
+            new_pkt_ip_hdr->ip_len=htons(sizeof(sr_ip_hdr_t));
+            new_pkt_ip_hdr->ip_id=0;
+            new_pkt_ip_hdr->ip_off=0;
+            new_pkt_ip_hdr->ip_ttl=64;
+            new_pkt_ip_hdr->ip_p=ip_protocol_icmp;
+            new_pkt_ip_hdr->ip_dst = org_pkt_ip_hdr->ip_src; /* dest = src of origin*/
+            new_pkt_ip_hdr->ip_src = out_sr_if->ip; /* src = ip addr of current interface*/
+            new_pkt_ip_hdr->ip_src = org_pkt_ip_hdr->ip_dst; /* src = dst of origin */
+            new_pkt_ip_hdr->ip_sum = 0;
+            new_pkt_ip_hdr->ip_sum = cksum(new_pkt_ip_hdr, sizeof(sr_ip_hdr_t));
+
+            /* ICMP header of new_pkt_for_icmp.
+             * Destination host unreachable (type 3, code 1) */
+            sr_icmp_t3_hdr_t *new_pkt_icmp_hdr = (sr_icmp_hdr_t*)(new_pkt_for_icmp + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+            sr_icmp_hdr_t *org_pkt_icmp_hdr = (sr_icmp_hdr_t*)(org_pkt + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+            new_pkt_icmp_hdr->icmp_type=3; /* This must be 3 since it is ICMP type3(=Destination Unreachable). */
+            new_pkt_icmp_hdr->icmp_code=1; /* Host Unreachable. */
+            new_pkt_icmp_hdr->unused=0;
+            new_pkt_icmp_hdr->next_mtu=0; /* 09/07/2023. Does not Fragment yet, so set it to 0 or 1500 which is default.  */
+            memset(new_pkt_icmp_hdr->data, 0, ICMP_DATA_SIZE);
+            
+
+            printf("---HOST UNREACHABLE ICMP FRAME---\n");
+            print_hdrs(new_pkt_for_icmp); /* Debug */
+
+            
+            /* Send ICMP Destination Host Unreachable */
+            sr_send_packet(sr, new_pkt_for_icmp, new_pkt_for_icmp_len, out_sr_if->name);
+            
+
+            /* Next node */
+            prev = arpreq_pt;
+            arpreq_pt = arpreq_pt->next;
+
+            /* Free req */
+            sr_arpreq_destroy(&sr->cache, prev);
+            continue;
+        }
 
         /* Create ARP request packet */
         uint32_t arp_req_pkt_len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
@@ -62,10 +141,14 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
 
         /* Send ARP request */
         int send_res = sr_send_packet(sr, arp_req_pkt, arp_req_pkt_len, out_sr_if->name);
-        /*free(arp_req_pkt); /* HACK: Free here? */
-        /* TODO: Update sent time */
-        /* TODO: Update times_sent */
+        free(arp_req_pkt); /* HACK: Free here? */
+        /* Update sent time in sr_arpreq */
+        arpreq_pt->sent = curtime;
+        
+        /* Update times_sent in sr_arpreq */
+        arpreq_pt->times_sent++;
 
+        /* Next node */
         arpreq_pt = arpreq_pt->next;
         
     }
