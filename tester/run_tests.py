@@ -117,6 +117,9 @@ def run_tests(net, tree, stopf):
                 info("*** Running iperf between %s and %s\n" % (h1.IP(), h2.IP()))
                 bw1, bw2 = net.iperf([h1, h2])
                 bw = float((bw1.split())[0])
+                unit = bw1.split()[1]
+                if "Kbits" in unit:
+                    bw = bw * 0.001
 		grade = get_grade_or_not(e)
 		if grade:
                     expected_bw = float(e.get("expect"))
