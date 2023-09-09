@@ -100,3 +100,6 @@ void sr_print_if_list(struct sr_instance* );
 #define ICMP_HDR_PTR(buf) ((sr_icmp_hdr_t*)(((uint8_t*)(buf)) + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t)))
 #define ICMP3_HDR_PTR(buf) ((sr_icmp_t3_hdr_t*)(((uint8_t*)(buf)) + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t)))
 #define ICMP_DATA_PTR(buf) ((sr_icmp_hdr_t*)(((uint8_t*)(buf)) + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_hdr_t)))
+
+#define ICMP_UDP_LEN (ALL_HEADER_SIZE + 4 /* unused */ + (sizeof(sr_ip_hdr_t) + 8 /* Datagram's data size=64bit*/)) /* size of IP packet with UDP */)
+#define ICMP3_UDP_LEN (ALL_HEADER_ICMP3_SIZE + (sizeof(sr_ip_hdr_t) + 8 /* Datagram's data size=64bit*/) /* UDP packet */) /* size of IP packet with UDP */

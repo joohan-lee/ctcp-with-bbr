@@ -119,7 +119,8 @@ void sr_handlepacket(struct sr_instance* sr,
 
     sr_ip_hdr_t* iphdr = (sr_ip_hdr_t *)((uint8_t*)(packet) + sizeof(sr_ethernet_hdr_t));
     uint32_t dst_ip = iphdr->ip_dst;
-    print_addr_ip_int(dst_ip);
+    Debug("dst_ip: %d\n", dst_ip);
+    print_addr_ip_int(dst_ip);/* Debug */
 
     if (is_router_ip(sr, dst_ip)) {
       printf(" It's one of router's IP addrs. For me! \n");
@@ -178,10 +179,7 @@ void sr_handlepacket(struct sr_instance* sr,
         ;
       }
       
-    } else {
-      /*
-      * If not for me, normal forwarding logic.
-      */
+    } else { /** If not for me, normal forwarding logic.*/
       Debug("IP dest addr is NOT one of router's IP addr! Forwarding starts.\n");
 
       /* 1. LPM to find incoming IP packet's sr_rt(dest,gw,mask,iface)*/
@@ -194,17 +192,38 @@ void sr_handlepacket(struct sr_instance* sr,
       if(!rt_matched_entry){
         /* TODO: Send ICMP message. -> Destination net unreachable (type 3, code 0). */
         Debug("LPM NOT matched!!\n");
+        
+        struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
+
+        /* Set the Ethernet header */
+        set_eth_hdr(copied_e_hdr, copied_e_hdr->ether_shost, rcv_sr_if->addr, htons(ethertype_ip)); /* shost = mac of iface of incoming packet */
+
+        /* Set the IP header */
+        uint32_t dst_ip = copied_iphdr->ip_src;
+        uint32_t src_ip = rcv_sr_if->ip; /* IP addr of incoming interface.*/
+        set_ip_hdr(copied_iphdr, len - sizeof(sr_ethernet_hdr_t), ip_protocol_icmp, dst_ip, src_ip);
+
+        /* Set the ICMP header */
+        struct sr_icmp_t3_hdr_t *copied_icmp_hdr = (sr_icmp_t3_hdr_t*)((uint8_t*)(copied_iphdr) + sizeof(sr_ip_hdr_t));
+        set_icmp3_hdr(copied_icmp_hdr, 3, 0, len);
+
+        /* Send ICMP message */
+        int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
+
+        free(copied_pkt); /* After handling ip packet, free copied*/
+        return;
+        
       }
-      else{
-        /* LPM matched. Forward the packet.
+      else{ /* LPM matched. */
+        /* Forward the packet.
         * 2. Check ARP cache
         *   2-1. If exists, forward IP packet to the next-hop.
         *   2-2. If not, add ARP request to ARP Queue.
         */
         
         /* Before forwarding, 
-         * Decrement the TTL by 1, and recompute the packet checksum over the modified header.
-         */
+          * Decrement the TTL by 1, and recompute the packet checksum over the modified header.
+          */
         copied_iphdr->ip_ttl--;
         copied_iphdr->ip_sum = 0;
         copied_iphdr->ip_sum = cksum(copied_iphdr, sizeof(sr_ip_hdr_t));
@@ -214,6 +233,8 @@ void sr_handlepacket(struct sr_instance* sr,
         * Send ICMP message(Time exceeded) and discard the packet. 
         */
         if(copied_iphdr->ip_ttl==0){/* ICMP message - Time exceeded (type 11, code 0) */
+          printf("ttl of received packet: %d!!\n",copied_iphdr->ip_ttl);
+          
           /* Set each header's fields which are needed to send ICMP message. */
           struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
           /* Set the Ethernet header */
@@ -230,6 +251,9 @@ void sr_handlepacket(struct sr_instance* sr,
 
           /* Send ICMP message */
           int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
+
+          free(copied_pkt); /* After handling ip packet, free copied*/
+          return;
 
         } /* end - ICMP message - Time exceeded*/
         
