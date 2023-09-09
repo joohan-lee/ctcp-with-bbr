@@ -190,7 +190,7 @@ void sr_handlepacket(struct sr_instance* sr,
       * (no matching entry in routing table when forwarding an IP packet).
       */
       if(!rt_matched_entry){
-        /* TODO: Send ICMP message. -> Destination net unreachable (type 3, code 0). */
+        /* Send ICMP message. -> Destination net unreachable (type 3, code 0). */
         Debug("LPM NOT matched!!\n");
         
         struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
