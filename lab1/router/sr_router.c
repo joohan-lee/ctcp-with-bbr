@@ -310,35 +310,34 @@ void sr_handlepacket(struct sr_instance* sr,
       */
 
       /* If arp request is for the MAC addr of the current router itself, immediately send a reply with it.*/
-      
-      
-        
+
       /*sr_print_if(received_sr_if); /* Debug*/
       /*struct in_addr ip_addr; /* Debug*/
       /*ip_addr.s_addr = a_hdr->ar_tip; /* Debug*/
       /*Debug("\ta_hdr->ar_tip: %s\n", inet_ntoa(ip_addr)); /* Debug*/
 
-      /* 1. Copy the packet */
-      uint8_t *copied_pkt = (uint8_t*)malloc(len);
-      memcpy(copied_pkt, packet, len);
-      /* 2. Edit the ethernet destination and source MAC addresses, plus whatever fields of the packet are relevant*/
-      sr_ethernet_hdr_t *copied_ehdr = (sr_ethernet_hdr_t *)copied_pkt;
-      sr_arp_hdr_t *copied_a_hdr = (struct sr_arp_hdr*)(copied_pkt + sizeof(struct sr_ethernet_hdr));
-      /* Ethernet header*/
-      memcpy(copied_ehdr->ether_dhost, e_hdr->ether_shost, sizeof(uint8_t) * ETHER_ADDR_LEN);
-      memcpy(copied_ehdr->ether_shost, received_sr_if->addr, sizeof(uint8_t) * ETHER_ADDR_LEN);
+      if(a_hdr->ar_tip == received_sr_if->ip){
+        /* 1. Copy the packet */
+        uint8_t *copied_pkt = (uint8_t*)malloc(len);
+        memcpy(copied_pkt, packet, len);
+        /* 2. Edit the ethernet destination and source MAC addresses, plus whatever fields of the packet are relevant*/
+        sr_ethernet_hdr_t *copied_ehdr = (sr_ethernet_hdr_t *)copied_pkt;
+        sr_arp_hdr_t *copied_a_hdr = (struct sr_arp_hdr*)(copied_pkt + sizeof(struct sr_ethernet_hdr));
+        /* Ethernet header*/
+        memcpy(copied_ehdr->ether_dhost, e_hdr->ether_shost, sizeof(uint8_t) * ETHER_ADDR_LEN);
+        memcpy(copied_ehdr->ether_shost, received_sr_if->addr, sizeof(uint8_t) * ETHER_ADDR_LEN);
 
-      /* ARP header */
-      copied_a_hdr->ar_op = htons(arp_op_reply);
-      memcpy(copied_a_hdr->ar_sha, received_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
-      copied_a_hdr->ar_sip = received_sr_if->ip;
-      memcpy(copied_a_hdr->ar_tha, a_hdr->ar_sha, sizeof(unsigned char) * ETHER_ADDR_LEN);
-      copied_a_hdr->ar_tip = a_hdr->ar_sip;
+        /* ARP header */
+        copied_a_hdr->ar_op = htons(arp_op_reply);
+        memcpy(copied_a_hdr->ar_sha, received_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
+        copied_a_hdr->ar_sip = received_sr_if->ip;
+        memcpy(copied_a_hdr->ar_tha, a_hdr->ar_sha, sizeof(unsigned char) * ETHER_ADDR_LEN);
+        copied_a_hdr->ar_tip = a_hdr->ar_sip;
 
-      /* 3. Send it. */
-      sr_send_packet(sr, copied_pkt, len, interface);
-      free(copied_pkt); /* HACK: free here?*/
-
+        /* 3. Send it. */
+        sr_send_packet(sr, copied_pkt, len, interface);
+        free(copied_pkt); /* HACK: free here?*/
+      }
       
     }
     else if(a_hdr->ar_op == htons(arp_op_reply)){
