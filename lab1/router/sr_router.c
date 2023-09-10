@@ -278,15 +278,10 @@ void sr_handlepacket(struct sr_instance* sr,
           Debug("IP dest addr, %d, does NOT exist in arp cache.\n", iphdr->ip_dst); /*XXX*/
           
           /* Add an ARP request to ARP Queue. returns the newly added *sr_arpreq(=req) */
-          /*uint8_t *copy_pkt_arpq = (uint8_t*)malloc(len); /* copy packet to pass it into sr_arpcache_queuereq */
-          /*memcpy(copy_pkt_arpq, packet, len);*/
 
           struct sr_arpreq *req = 0;
-          /*req = sr_arpcache_queuereq(&(sr->cache), rt_matched_entry->gw.s_addr, copy_pkt_arpq, len, rt_matched_entry->interface);*/
-          /*req = sr_arpcache_queuereq(&(sr->cache), iphdr->ip_dst, copy_pkt_arpq, len, rt_matched_entry->interface);*/
-          req = sr_arpcache_queuereq(&(sr->cache), copied_iphdr->ip_dst, copied_pkt, len, rt_matched_entry->interface); /* interface=outgoing interface*/
-          /* handle_arpreq(req) in sr_arpcache.h ?? */
-          /*free(copy_pkt_arpq); /* free passed *packet */
+          req = sr_arpcache_queuereq(&(sr->cache), rt_matched_entry->gw.s_addr, copied_pkt, len, rt_matched_entry->interface);
+          /*req = sr_arpcache_queuereq(&(sr->cache), copied_iphdr->ip_dst, copied_pkt, len, rt_matched_entry->interface); /* interface=outgoing interface*/
 
         }
       }
