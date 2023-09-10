@@ -165,7 +165,7 @@ def lab1_extended_topology():
 
 if __name__ == '__main__':
     setLogLevel( 'info' )
-    net = cs551net()
+    net = cs551net(ext=True)
     CLI(net)
     stophttp()
     net.stop()

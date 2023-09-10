@@ -93,7 +93,6 @@ void sr_handlepacket(struct sr_instance* sr,
 
   /* Determine if the packet is IP Packet or ARP Packet */
   if(ethertype(packet)==ethertype_ip){
-    printf("-- Received packet is ip packet--\n");
     /* Drop the packet, if it is too small. */
     if (len < sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t)) {
       return;
@@ -118,16 +117,8 @@ void sr_handlepacket(struct sr_instance* sr,
     }
 
     sr_ip_hdr_t* iphdr = (sr_ip_hdr_t *)((uint8_t*)(packet) + sizeof(sr_ethernet_hdr_t));
-    printf("--Received IP packet--\n");
-    print_hdr_ip(iphdr);
-    print_hdr_icmp(iphdr+sizeof(sr_ip_hdr_t));
-    uint32_t dst_ip = iphdr->ip_dst;
-    Debug("dst_ip: %d\n", dst_ip);
-    print_addr_ip_int(dst_ip);/* Debug */
 
-    if (is_router_ip(sr, dst_ip)) {
-      printf(" It's one of router's IP addrs. For me! \n");
-
+    if (is_router_ip(sr, iphdr->ip_dst)) {
       /* pointers to each header in copied packet. */
       sr_icmp_t3_hdr_t* copied_icmp_hdr = (sr_icmp_t3_hdr_t *)((uint8_t*)(copied_iphdr) + sizeof(sr_ip_hdr_t));
 
@@ -136,8 +127,6 @@ void sr_handlepacket(struct sr_instance* sr,
       assert(rt_matched_entry);
       uint8_t rcvd_ip_p = ip_protocol((uint8_t*)copied_iphdr);
       if(rcvd_ip_p == ip_protocol_icmp){
-        printf(" ICMP message received!\n");
-        
         if (copied_icmp_hdr->icmp_type == 8) {
           /* -- ICMP echo request. -> Echo reply. -- */
           
@@ -160,7 +149,6 @@ void sr_handlepacket(struct sr_instance* sr,
         }
       }
       else if( rcvd_ip_p == ip_protocol_tcp || rcvd_ip_p == ip_protocol_udp){
-        printf("UDP packet received at router!\n");
         /* IP packet containing a UDP or TCP payload. -> PORT Unreachable.*/
         struct sr_if* rcv_sr_if = sr_get_interface(sr, interface);
 
@@ -181,8 +169,6 @@ void sr_handlepacket(struct sr_instance* sr,
 
         /* Send ICMP reply */
         int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
-        printf("--Sent ICMP PORT unreachable--\n");
-        print_hdrs(copied_pkt, len);
         
       }
       else{
@@ -191,7 +177,6 @@ void sr_handlepacket(struct sr_instance* sr,
       }
       
     } else { /** If not for me, normal forwarding logic.*/
-      Debug("IP dest addr is NOT one of router's IP addr! Forwarding starts.\n");
       /***
       * if the frame contains an IP packet whose destination is not one of the router’s interfaces:
       * 1.  Check that the packet is valid (is large enough to hold an IP header and has a correct checksum).
@@ -214,8 +199,6 @@ void sr_handlepacket(struct sr_instance* sr,
       * Send ICMP message(Time exceeded) and discard the packet. 
       */
       if(copied_iphdr->ip_ttl==0){/* ICMP message - Time exceeded (type 11, code 0) */
-        printf("ttl of received packet: %d!!\n",copied_iphdr->ip_ttl);
-        
         /* Set each header's fields which are needed to send ICMP message. */
         struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
         /* Set the Ethernet header */
@@ -237,8 +220,6 @@ void sr_handlepacket(struct sr_instance* sr,
 
         /* Send ICMP message */
         int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
-        printf("--Sent ICMP Time Exceeded--\n");
-        print_hdrs(copied_pkt, len);
 
         free(copied_pkt); /* After handling ip packet, free copied*/
         return;
@@ -275,8 +256,6 @@ void sr_handlepacket(struct sr_instance* sr,
           free(sr_arpentry_copy); /* This should be free after sending. */
       
         }else{/* If does not exist in arp cache, Add a request into ARP Queue */  
-          Debug("IP dest addr, %d, does NOT exist in arp cache.\n", iphdr->ip_dst); /*XXX*/
-          
           /* Add an ARP request to ARP Queue. returns the newly added *sr_arpreq(=req) */
 
           struct sr_arpreq *req = 0;
@@ -287,8 +266,6 @@ void sr_handlepacket(struct sr_instance* sr,
       }
       else{  /* LPM not matched. */
         /* Send ICMP message. -> Destination net unreachable (type 3, code 0). */
-        Debug("LPM NOT matched!!\n");
-        
         struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
 
         /* Set the Ethernet header */
@@ -315,13 +292,8 @@ void sr_handlepacket(struct sr_instance* sr,
 
   }
   else if(ethertype(packet)==ethertype_arp){
-    printf("-- Received packet is arp packet--\n");
-    
     struct sr_arp_hdr*       a_hdr = 0;
     a_hdr = (struct sr_arp_hdr*)(packet + sizeof(struct sr_ethernet_hdr));
-
-    /*sr_arp_hdr_t *arp_hdr = (sr_arp_hdr_t *)(packet); XXX*/
-    print_hdr_arp(a_hdr); /* XXX: print all fields of header in packet*/
 
     /**
     * Router can send a request of ARP and receive the reply.
@@ -336,46 +308,37 @@ void sr_handlepacket(struct sr_instance* sr,
       * target MAC addr = ff-ff-ff-ff-ff-ff
       * target IP addr should be given.
       */
-      printf("---ARP REQUST!---\n"); /*XXX*/
+
       /* If arp request is for the MAC addr of the current router itself, immediately send a reply with it.*/
       
-      if(a_hdr->ar_tip == received_sr_if->ip){
+      
         
-        sr_print_if(received_sr_if); /* Debug*/
-        struct in_addr ip_addr; /* Debug*/
-        ip_addr.s_addr = a_hdr->ar_tip; /* Debug*/
-        Debug("\ta_hdr->ar_tip: %s\n", inet_ntoa(ip_addr)); /* Debug*/
+      /*sr_print_if(received_sr_if); /* Debug*/
+      /*struct in_addr ip_addr; /* Debug*/
+      /*ip_addr.s_addr = a_hdr->ar_tip; /* Debug*/
+      /*Debug("\ta_hdr->ar_tip: %s\n", inet_ntoa(ip_addr)); /* Debug*/
 
-        /* 1. Copy the packet */
-        uint8_t *copied_pkt = (uint8_t*)malloc(len);
-        memcpy(copied_pkt, packet, len);
-        /* 2. Edit the ethernet destination and source MAC addresses, plus whatever fields of the packet are relevant*/
-        sr_ethernet_hdr_t *copied_ehdr = (sr_ethernet_hdr_t *)copied_pkt;
-        sr_arp_hdr_t *copied_a_hdr = (struct sr_arp_hdr*)(copied_pkt + sizeof(struct sr_ethernet_hdr));
-        /* Ethernet header*/
-        memcpy(copied_ehdr->ether_dhost, e_hdr->ether_shost, sizeof(uint8_t) * ETHER_ADDR_LEN);
-        memcpy(copied_ehdr->ether_shost, received_sr_if->addr, sizeof(uint8_t) * ETHER_ADDR_LEN);
+      /* 1. Copy the packet */
+      uint8_t *copied_pkt = (uint8_t*)malloc(len);
+      memcpy(copied_pkt, packet, len);
+      /* 2. Edit the ethernet destination and source MAC addresses, plus whatever fields of the packet are relevant*/
+      sr_ethernet_hdr_t *copied_ehdr = (sr_ethernet_hdr_t *)copied_pkt;
+      sr_arp_hdr_t *copied_a_hdr = (struct sr_arp_hdr*)(copied_pkt + sizeof(struct sr_ethernet_hdr));
+      /* Ethernet header*/
+      memcpy(copied_ehdr->ether_dhost, e_hdr->ether_shost, sizeof(uint8_t) * ETHER_ADDR_LEN);
+      memcpy(copied_ehdr->ether_shost, received_sr_if->addr, sizeof(uint8_t) * ETHER_ADDR_LEN);
 
-        /* ARP header */
-        copied_a_hdr->ar_op = htons(arp_op_reply);
-        memcpy(copied_a_hdr->ar_sha, received_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
-        copied_a_hdr->ar_sip = received_sr_if->ip;
-        memcpy(copied_a_hdr->ar_tha, a_hdr->ar_sha, sizeof(unsigned char) * ETHER_ADDR_LEN);
-        copied_a_hdr->ar_tip = a_hdr->ar_sip;
+      /* ARP header */
+      copied_a_hdr->ar_op = htons(arp_op_reply);
+      memcpy(copied_a_hdr->ar_sha, received_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
+      copied_a_hdr->ar_sip = received_sr_if->ip;
+      memcpy(copied_a_hdr->ar_tha, a_hdr->ar_sha, sizeof(unsigned char) * ETHER_ADDR_LEN);
+      copied_a_hdr->ar_tip = a_hdr->ar_sip;
 
-        /*Debug("--- copied_pkt --- \n");
-        print_hdrs(copied_pkt, len);/* Debug */
+      /* 3. Send it. */
+      sr_send_packet(sr, copied_pkt, len, interface);
+      free(copied_pkt); /* HACK: free here?*/
 
-        /* 3. Send it. */
-        sr_send_packet(sr, copied_pkt, len, interface);
-        free(copied_pkt); /* HACK: free here?*/
-
-      }
-      else{
-        /* If arp request is for the MAC addr of the current router itself, immediately send a reply with it.*/
-        printf("ARP request for other IP address not in the current router.\n");
-        
-      }
       
     }
     else if(a_hdr->ar_op == htons(arp_op_reply)){
@@ -384,7 +347,6 @@ void sr_handlepacket(struct sr_instance* sr,
       * (=fill out destination MAC addr of the raw Ethernet frame (in packets waiting on that packet)?) 
       */
       /* ARP reply is unicast. operation code == 2*/
-      Debug("---ARP REPLY!---\n");
 
       /* Cache it */
       struct sr_arpreq *sr_arpreq_for_reply;
@@ -393,9 +355,6 @@ void sr_handlepacket(struct sr_instance* sr,
       /* If there are requests wating on this arp reply, send outstanding packets. */
       
       if(sr_arpreq_for_reply){
-        Debug("req dest ip:\n "); /*Debug*/
-        print_addr_ip_int(sr_arpreq_for_reply->ip); /*Debug*/
-
         struct sr_packet *curr_sr_pkt = sr_arpreq_for_reply->packets;
         while(curr_sr_pkt){
           uint8_t *curr_sr_pkt_buf = curr_sr_pkt->buf; /* current packet. (it includes ethernet header)*/
@@ -406,11 +365,6 @@ void sr_handlepacket(struct sr_instance* sr,
           memcpy(q_reply_e_hdr->ether_dhost, a_hdr->ar_sha, ETHER_ADDR_LEN); /* Send to src addr of received arp reply */
           memcpy(q_reply_e_hdr->ether_shost, out_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
           q_reply_e_hdr->ether_type = q_reply_e_hdr->ether_type;
-          
-          
-          Debug("--- Created ethernet for sending outstanding packets\n");
-          /*print_hdr_eth(q_reply_e_hdr); /* Debug*/
-          print_hdrs(curr_sr_pkt_buf, curr_sr_pkt->len);/*Debug*/
 
           /* Send outstanding packets (forwarding) */
           sr_send_packet(sr, curr_sr_pkt_buf, curr_sr_pkt->len, out_sr_if->name);
@@ -420,12 +374,7 @@ void sr_handlepacket(struct sr_instance* sr,
         
         sr_arpreq_destroy(&sr->cache, sr_arpreq_for_reply);
       }
-    }else{
-      printf("---arp opcode ERROR---\n");
     }
-  }
-  else{
-    fprintf(stderr, "Invalid ethertype.\n");
   }
   
 
@@ -456,9 +405,7 @@ int is_valid_icmp_cksum(sr_icmp_hdr_t *icmp_hdr){
   memcpy(copied_icmp_hdr, icmp_hdr, sizeof(sr_icmp_hdr_t));
   copied_icmp_hdr->icmp_sum=0;
   int cs = cksum(copied_icmp_hdr, sizeof(sr_icmp_hdr_t));
-  printf("copied_icmp_hdr->icmp_sum: %d\n",cs);
   int is_valid = (icmp_hdr->icmp_sum==cs);
-  printf("is_valid: %d\n",is_valid);
 
   /* free */
   free(copied_icmp_hdr);
@@ -553,9 +500,9 @@ void copy_iphdr_and_data_for_icmp(sr_icmp_t3_hdr_t* icmp_hdr, uint8_t* incoming_
   
   memcpy(icmp_data_ptr, incoming_iphdr, incoming_iphdr_len + 8 /* original data=(type,code,cksum)?? or ICMP echo request/reply's data */);
   /*Debug*/
-  Debug("Added incoming original ip header and data into icmp message: \n");
+  /*Debug("Added incoming original ip header and data into icmp message: \n");
   print_hdr_ip(icmp_data_ptr);
-  print_hdr_icmp(icmp_data_ptr + incoming_iphdr_len);
+  print_hdr_icmp(icmp_data_ptr + incoming_iphdr_len);*/
 
   
   
@@ -580,7 +527,6 @@ int is_router_ip(struct sr_instance* sr,
  * Find longest prefix matched sr_rt using destinatin of IP addr.
  */
 struct sr_rt* find_sr_rt_by_ip(struct sr_instance* sr, uint32_t dst_ip){
-  /*sr_print_routing_table(sr); /* Debug */
   struct sr_rt *rt_walker = sr->routing_table;
   uint32_t lpm_mask = 0; /* longest prefix matched mask */
   struct sr_rt *rt_matched_entry = NULL; /* longest prefix matched entry */
@@ -591,7 +537,7 @@ struct sr_rt* find_sr_rt_by_ip(struct sr_instance* sr, uint32_t dst_ip){
       rt_walker->mask.s_addr >= lpm_mask){
         lpm_mask = rt_walker->mask.s_addr;
         rt_matched_entry = rt_walker;
-        sr_print_routing_entry(rt_matched_entry);
+        /*sr_print_routing_entry(rt_matched_entry);Debug*/
     }
     rt_walker = rt_walker->next;
   }
