@@ -81,6 +81,7 @@ void set_ip_hdr(sr_ip_hdr_t *iphdr,
                   );
 void set_icmp_hdr(sr_icmp_hdr_t*, uint8_t, uint8_t);
 void set_icmp3_hdr(sr_icmp_t3_hdr_t*, uint8_t, uint8_t, unsigned int);
+void copy_iphdr_and_data_for_icmp(sr_icmp_t3_hdr_t*, uint8_t*, uint32_t);
 int is_router_ip(struct sr_instance* sr, uint32_t dst_ip);
 struct sr_rt* find_sr_rt_by_ip(struct sr_instance*, uint32_t);
 

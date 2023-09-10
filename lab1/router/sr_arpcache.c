@@ -20,13 +20,20 @@ static volatile int keep_running_arpcache = 1;
 */
 void sr_arpcache_sweepreqs(struct sr_instance *sr) { 
     /* Fill this in */
-    Debug("sr_arpcache_sweepreqs called.\n");
+    Debug("\nsr_arpcache_sweepreqs called.\n");
 
     struct sr_arpreq *arpreq_pt = (struct sr_arpreq*)(sr->cache.requests);
     struct sr_arpreq *prev = 0;
     
     while(arpreq_pt){
         time_t curtime = time(NULL);
+        /*
+        printf("arpreq_pt->ip: \n");
+        print_addr_ip_int(arpreq_pt->ip);
+        printf("arpreq_pt->times_sent: %d\n",arpreq_pt->times_sent);
+        printf("curtime: %ld\n",curtime);
+        printf("arpreq_pt->sent: %ld\n",arpreq_pt->sent);
+        printf("difftime(curtime, arpreq_pt->sent): %f\n",difftime(curtime, arpreq_pt->sent)); Debug */
         if(difftime(curtime, arpreq_pt->sent) < 1.0){
             arpreq_pt = arpreq_pt->next;
             continue;
@@ -41,8 +48,8 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
              */
             /* Copy the packet from sr_arpreq->packets to send ICMP message back to all senders of packets that were waiting on */
             uint32_t new_pkt_for_icmp_len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t);
-            /*uint8_t *copied_pkt_for_icmp = (uint8_t*)malloc(arpreq_pt->packets->len); + memcpy*/
             uint8_t *org_pkt = (uint8_t*)(arpreq_pt->packets->buf);
+            uint org_pkt_len = arpreq_pt->packets->len;
             uint8_t *new_pkt_for_icmp = (uint8_t*)malloc(new_pkt_for_icmp_len);
             memcpy(new_pkt_for_icmp, org_pkt, new_pkt_for_icmp_len);
 
@@ -91,6 +98,9 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
             new_pkt_icmp_hdr->icmp_code=1; /* Host Unreachable. */
             new_pkt_icmp_hdr->icmp_sum=0;
             new_pkt_icmp_hdr->icmp_sum = cksum(new_pkt_icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
+
+            /* if icmp message is Destination unreachable or Time exceeded, should fill data part with original IP(UDP) packet */
+            copy_iphdr_and_data_for_icmp(new_pkt_icmp_hdr, org_pkt, org_pkt_len);
             
 
             printf("---HOST UNREACHABLE ICMP FRAME---\n");
@@ -100,10 +110,6 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
             /* Send ICMP Destination Host Unreachable */
             sr_send_packet(sr, new_pkt_for_icmp, new_pkt_for_icmp_len, out_sr_if->name);
             printf("ICMP Host unreachable packet sent!\n");
-
-            /* Next node */
-            /*prev = arpreq_pt;
-            arpreq_pt = arpreq_pt->next;*/
 
             /* Free req */
             free(new_pkt_for_icmp);
@@ -127,7 +133,7 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
             /* ARP header */
             struct sr_arp_hdr* arp_req_a_hdr = (struct sr_arp_hdr*)(arp_req_pkt + sizeof(struct sr_ethernet_hdr));
             arp_req_a_hdr->ar_hrd=htons(arp_hrd_ethernet);
-            arp_req_a_hdr->ar_pro=htons(ethertype_ip);
+            arp_req_a_hdr->ar_pro=htons(ethertype_ip); /* IPv4 */
             arp_req_a_hdr->ar_hln = 6;
             arp_req_a_hdr->ar_pln = 4;
             arp_req_a_hdr->ar_op=htons(arp_op_request);
@@ -141,7 +147,7 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
 
             /* Send ARP request */
             int send_res = sr_send_packet(sr, arp_req_pkt, arp_req_pkt_len, out_sr_if->name);
-            free(arp_req_pkt); /* HACK: Free here? */
+            free(arp_req_pkt);
             /* Update sent time in sr_arpreq */
             arpreq_pt->sent = curtime;
             

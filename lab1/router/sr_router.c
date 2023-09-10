@@ -118,6 +118,9 @@ void sr_handlepacket(struct sr_instance* sr,
     }
 
     sr_ip_hdr_t* iphdr = (sr_ip_hdr_t *)((uint8_t*)(packet) + sizeof(sr_ethernet_hdr_t));
+    printf("--Received IP packet--\n");
+    print_hdr_ip(iphdr);
+    print_hdr_icmp(iphdr+sizeof(sr_ip_hdr_t));
     uint32_t dst_ip = iphdr->ip_dst;
     Debug("dst_ip: %d\n", dst_ip);
     print_addr_ip_int(dst_ip);/* Debug */
@@ -128,15 +131,11 @@ void sr_handlepacket(struct sr_instance* sr,
       /* pointers to each header in copied packet. */
       sr_icmp_t3_hdr_t* copied_icmp_hdr = (sr_icmp_t3_hdr_t *)((uint8_t*)(copied_iphdr) + sizeof(sr_ip_hdr_t));
 
-      /* src and dest ip addr of reply. */
-      uint32_t src_ip = copied_iphdr->ip_dst;
-      uint32_t dst_ip = copied_iphdr->ip_src;
-
-      /* LMP to find outgoing interface to send back ICMP reply */
+      /* LPM to find outgoing interface to send back ICMP reply */
       struct sr_rt* rt_matched_entry = find_sr_rt_by_ip(sr, copied_iphdr->ip_src);
       assert(rt_matched_entry);
-
-      if(copied_iphdr->ip_p == ip_protocol_icmp){
+      uint8_t rcvd_ip_p = ip_protocol((uint8_t*)copied_iphdr);
+      if(rcvd_ip_p == ip_protocol_icmp){
         printf(" ICMP message received!\n");
         
         if (copied_icmp_hdr->icmp_type == 8) {
@@ -148,6 +147,9 @@ void sr_handlepacket(struct sr_instance* sr,
           set_eth_hdr(copied_e_hdr, copied_e_hdr->ether_shost, icmp_out_sr_if->addr, htons(ethertype_ip));
 
           /* Set IP header */
+          /* src and dest ip addr of reply. */
+          uint32_t src_ip = copied_iphdr->ip_dst;
+          uint32_t dst_ip = copied_iphdr->ip_src;
           set_ip_hdr(copied_iphdr, len - sizeof(sr_ethernet_hdr_t), ip_protocol_icmp, dst_ip, src_ip);
 
           /* Set ICMP header */
@@ -157,21 +159,30 @@ void sr_handlepacket(struct sr_instance* sr,
           int send_res = sr_send_packet(sr, copied_pkt, len, icmp_out_sr_if->name);
         }
       }
-      else if( copied_iphdr->ip_p == ip_protocol_tcp || copied_iphdr->ip_p == ip_protocol_udp){
+      else if( rcvd_ip_p == ip_protocol_tcp || rcvd_ip_p == ip_protocol_udp){
+        printf("UDP packet received at router!\n");
         /* IP packet containing a UDP or TCP payload. -> PORT Unreachable.*/
-        struct sr_if* rcvd_sr_if = sr_get_interface(sr, interface);
+        struct sr_if* rcv_sr_if = sr_get_interface(sr, interface);
 
         /* Set Ethernet header */
-        set_eth_hdr(copied_e_hdr, copied_e_hdr->ether_shost, rcvd_sr_if->addr, htons(ethertype_ip)); /* dhost = mac of iface of incoming packet */
+        set_eth_hdr(copied_e_hdr, copied_e_hdr->ether_shost, rcv_sr_if->addr, htons(ethertype_ip)); /* dhost = mac of iface of incoming packet */
 
         /* Set the IP header */
+        /* src and dest ip addr of reply. */
+        uint32_t dst_ip = copied_iphdr->ip_src;
+        uint32_t src_ip = rcv_sr_if->ip; /* IP addr of incoming interface.*/
         set_ip_hdr(copied_iphdr, len - sizeof(sr_ethernet_hdr_t), ip_protocol_icmp, dst_ip, src_ip);
 
         /* Set the ICMP header */
         set_icmp3_hdr(copied_icmp_hdr, 3, 3, len);
 
+        /* if icmp message is Destination unreachable or Time exceeded, should fill data part with original IP(UDP) packet */
+        copy_iphdr_and_data_for_icmp(copied_icmp_hdr, packet, len);
+
         /* Send ICMP reply */
-        int send_res = sr_send_packet(sr, copied_pkt, len, rcvd_sr_if->name);
+        int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
+        printf("--Sent ICMP PORT unreachable--\n");
+        print_hdrs(copied_pkt, len);
         
       }
       else{
@@ -181,15 +192,105 @@ void sr_handlepacket(struct sr_instance* sr,
       
     } else { /** If not for me, normal forwarding logic.*/
       Debug("IP dest addr is NOT one of router's IP addr! Forwarding starts.\n");
+      /***
+      * if the frame contains an IP packet whose destination is not one of the router’s interfaces:
+      * 1.  Check that the packet is valid (is large enough to hold an IP header and has a correct checksum).
+      * 2.  Decrement the TTL by 1, and recompute the packet checksum over the modified header.
+      * 3.  Find out which entry in the routing table has the longest prefix match with the destination IP address.
+      * 4. Check the ARP cache for the next-hop MAC address corresponding to the next-hop IP. If it’s there, send it. 
+      *    Otherwise, send an ARP request for the next-hop IP (if one hasn’t been sent within the last second), and add the 
+      *    packet to the queue of packets waiting on this ARP request.
+      */
 
-      /* 1. LPM to find incoming IP packet's sr_rt(dest,gw,mask,iface)*/
+      /* 
+      * Decrement the TTL by 1, and recompute the packet checksum over the modified header.
+      */
+      copied_iphdr->ip_ttl--;
+      copied_iphdr->ip_sum = 0;
+      copied_iphdr->ip_sum = cksum(copied_iphdr, sizeof(sr_ip_hdr_t));
+
+      /* After decrementing ttl by 1,
+      * if ttl is equal to 0,
+      * Send ICMP message(Time exceeded) and discard the packet. 
+      */
+      if(copied_iphdr->ip_ttl==0){/* ICMP message - Time exceeded (type 11, code 0) */
+        printf("ttl of received packet: %d!!\n",copied_iphdr->ip_ttl);
+        
+        /* Set each header's fields which are needed to send ICMP message. */
+        struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
+        /* Set the Ethernet header */
+        set_eth_hdr(copied_e_hdr, copied_e_hdr->ether_shost, rcv_sr_if->addr, htons(ethertype_ip)); /* shost = mac of iface of incoming packet */
+
+        /* Set the IP header */
+        uint32_t dst_ip = copied_iphdr->ip_src;
+        uint32_t src_ip = rcv_sr_if->ip; /* IP addr of incoming interface.*/
+        /*set_ip_hdr(copied_iphdr, len - sizeof(sr_ethernet_hdr_t), ip_protocol_icmp, dst_ip, src_ip);*/
+        set_ip_hdr(copied_iphdr, sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t), ip_protocol_icmp, dst_ip, src_ip);
+
+
+        /* Set the ICMP header */
+        struct sr_icmp_t3_hdr_t *copied_icmp_hdr = (sr_icmp_t3_hdr_t*)((uint8_t*)(copied_iphdr) + sizeof(sr_ip_hdr_t));
+        set_icmp3_hdr(copied_icmp_hdr, 11, 0, len);
+
+        /* if icmp message is Destination unreachable or Time exceeded, should fill data part with original IP(UDP) packet */
+        copy_iphdr_and_data_for_icmp(copied_icmp_hdr, packet, len);
+
+        /* Send ICMP message */
+        int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
+        printf("--Sent ICMP Time Exceeded--\n");
+        print_hdrs(copied_pkt, len);
+
+        free(copied_pkt); /* After handling ip packet, free copied*/
+        return;
+
+      } /* end - ICMP message - Time exceeded*/
+
+      /* LPM to find incoming IP packet's sr_rt(dest,gw,mask,iface)*/
       struct sr_rt* rt_matched_entry = find_sr_rt_by_ip(sr, copied_iphdr->ip_dst);
 
       /* Dest IP addr did not match anything in routing table.
       * ICMP Message: Destination net unreachable (type 3, code 0) Sent if there is a non-existent route to the destination IP 
       * (no matching entry in routing table when forwarding an IP packet).
       */
-      if(!rt_matched_entry){
+      if(rt_matched_entry!=NULL){ /* LPM matched. */
+        /* Forward the packet.
+        * 2. Check ARP cache
+        *   2-1. If exists, forward IP packet to the next-hop.
+        *   2-2. If not, add ARP request to ARP Queue.
+        */
+        
+        /* Lookup ARP Queue entries to find MAC addr of received IP dest address. */
+        struct sr_arpentry *sr_arpentry_copy = sr_arpcache_lookup(&sr->cache, iphdr->ip_dst);
+        if(sr_arpentry_copy){/* If exists in arpcache, farward IP packet. */
+          struct sr_if *out_fwd_sr_if = sr_get_interface(sr, rt_matched_entry->interface); /* Send through interface which matched in routing table.*/
+
+          /* Edit ethernet header of packet to forward */
+          memcpy(copied_e_hdr->ether_dhost, sr_arpentry_copy->mac, ETHER_ADDR_LEN);
+          memcpy(copied_e_hdr->ether_shost, out_fwd_sr_if->addr, ETHER_ADDR_LEN);
+
+          /* Send */
+          sr_send_packet(sr, copied_pkt, len, out_fwd_sr_if->name);
+
+          /* Free sr_arpentry_copy */
+          free(sr_arpentry_copy); /* This should be free after sending. */
+      
+        }else{/* If does not exist in arp cache, Add a request into ARP Queue */  
+          Debug("IP dest addr, %d, does NOT exist in arp cache.\n", iphdr->ip_dst); /*XXX*/
+          
+          /* Add an ARP request to ARP Queue. returns the newly added *sr_arpreq(=req) */
+          /*uint8_t *copy_pkt_arpq = (uint8_t*)malloc(len); /* copy packet to pass it into sr_arpcache_queuereq */
+          /*memcpy(copy_pkt_arpq, packet, len);*/
+
+          struct sr_arpreq *req = 0;
+          /*req = sr_arpcache_queuereq(&(sr->cache), rt_matched_entry->gw.s_addr, copy_pkt_arpq, len, rt_matched_entry->interface);*/
+          /*req = sr_arpcache_queuereq(&(sr->cache), iphdr->ip_dst, copy_pkt_arpq, len, rt_matched_entry->interface);*/
+          req = sr_arpcache_queuereq(&(sr->cache), copied_iphdr->ip_dst, copied_pkt, len, rt_matched_entry->interface); /* interface=outgoing interface*/
+          /* handle_arpreq(req) in sr_arpcache.h ?? */
+          /*free(copy_pkt_arpq); /* free passed *packet */
+
+        }
+      }
+      else{  /* LPM not matched. */
         /* Send ICMP message. -> Destination net unreachable (type 3, code 0). */
         Debug("LPM NOT matched!!\n");
         
@@ -207,99 +308,15 @@ void sr_handlepacket(struct sr_instance* sr,
         struct sr_icmp_t3_hdr_t *copied_icmp_hdr = (sr_icmp_t3_hdr_t*)((uint8_t*)(copied_iphdr) + sizeof(sr_ip_hdr_t));
         set_icmp3_hdr(copied_icmp_hdr, 3, 0, len);
 
+        /* if icmp message is Destination unreachable or Time exceeded, should fill data part with original IP(UDP) packet */
+        copy_iphdr_and_data_for_icmp(copied_icmp_hdr, packet, len);
+
         /* Send ICMP message */
         int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
-
-        free(copied_pkt); /* After handling ip packet, free copied*/
-        return;
-        
-      }
-      else{ /* LPM matched. */
-        /* Forward the packet.
-        * 2. Check ARP cache
-        *   2-1. If exists, forward IP packet to the next-hop.
-        *   2-2. If not, add ARP request to ARP Queue.
-        */
-        
-        /* Before forwarding, 
-          * Decrement the TTL by 1, and recompute the packet checksum over the modified header.
-          */
-        copied_iphdr->ip_ttl--;
-        copied_iphdr->ip_sum = 0;
-        copied_iphdr->ip_sum = cksum(copied_iphdr, sizeof(sr_ip_hdr_t));
-
-        /* After decrementing ttl by 1,
-        * if ttl is equal to 0,
-        * Send ICMP message(Time exceeded) and discard the packet. 
-        */
-        if(copied_iphdr->ip_ttl==0){/* ICMP message - Time exceeded (type 11, code 0) */
-          printf("ttl of received packet: %d!!\n",copied_iphdr->ip_ttl);
-          
-          /* Set each header's fields which are needed to send ICMP message. */
-          struct sr_if *rcv_sr_if = sr_get_interface(sr, interface);
-          /* Set the Ethernet header */
-          set_eth_hdr(copied_e_hdr, copied_e_hdr->ether_shost, rcv_sr_if->addr, htons(ethertype_ip)); /* shost = mac of iface of incoming packet */
-
-          /* Set the IP header */
-          uint32_t dst_ip = copied_iphdr->ip_src;
-          uint32_t src_ip = rcv_sr_if->ip; /* IP addr of incoming interface.*/
-          set_ip_hdr(copied_iphdr, len - sizeof(sr_ethernet_hdr_t), ip_protocol_icmp, dst_ip, src_ip);
-
-          /* Set the ICMP header */
-          struct sr_icmp_t3_hdr_t *copied_icmp_hdr = (sr_icmp_t3_hdr_t*)((uint8_t*)(copied_iphdr) + sizeof(sr_ip_hdr_t));
-          set_icmp3_hdr(copied_icmp_hdr, 11, 0, len);
-
-          /* Send ICMP message */
-          int send_res = sr_send_packet(sr, copied_pkt, len, rcv_sr_if->name);
-
-          free(copied_pkt); /* After handling ip packet, free copied*/
-          return;
-
-        } /* end - ICMP message - Time exceeded*/
-        
-        /* Lookup ARP Queue entries to find MAC addr of received IP dest address. */
-        struct sr_arpentry *sr_arpentry_copy = sr_arpcache_lookup(&sr->cache, iphdr->ip_dst);
-        if(sr_arpentry_copy){/* If exists in arpcache, farward IP packet. */
-          Debug("IP dest addr exists in arp cache.\n Dest IP addr: ");
-          print_addr_ip_int(iphdr->ip_dst); /*XXX*/
-          Debug("\n its MAC addr: ");
-          int i;
-          for (i = 0; i < ETHER_ADDR_LEN; i++) {
-              printf("%02x:", sr_arpentry_copy->mac[i]);
-          }
-          printf("\n"); /*Debug*/
-
-          struct sr_if *out_fwd_sr_if = sr_get_interface(sr, rt_matched_entry->interface); /* Send through interface which matched in arp cache.*/
-
-          /* Edit ethernet header of packet to forward */
-          memcpy(copied_e_hdr->ether_dhost, sr_arpentry_copy->mac, ETHER_ADDR_LEN);
-          memcpy(copied_e_hdr->ether_shost, out_fwd_sr_if->addr, ETHER_ADDR_LEN);
-
-          /* Send */
-          sr_send_packet(sr, copied_pkt, len, out_fwd_sr_if->name);
-
-          /* Free sr_arpentry_copy */
-          free(sr_arpentry_copy); /* This should be free after sending. */
-      
-        }else{/* If does not exist in arp cache, Add a request into ARP Queue */  
-          Debug("IP dest addr, %d, does NOT exist in arp cache.\n", iphdr->ip_dst); /*XXX*/
-          
-          /* Add an ARP request to ARP Queue. returns the newly added *sr_arpreq(=req) */
-          uint8_t *copy_pkt_arpq = (uint8_t*)malloc(len); /* copy packet to pass it into sr_arpcache_queuereq */
-          memcpy(copy_pkt_arpq, packet, len);
-          struct sr_arpreq *req = 0;
-          /*req = sr_arpcache_queuereq(&(sr->cache), rt_matched_entry->gw.s_addr, copy_pkt_arpq, len, rt_matched_entry->interface);*/
-          req = sr_arpcache_queuereq(&(sr->cache), iphdr->ip_dst, copy_pkt_arpq, len, rt_matched_entry->interface);
-          /* handle_arpreq(req) in sr_arpcache.h ?? */
-          free(copy_pkt_arpq); /* free passed *packet */
-
-        }
-        
-
       }
     }
 
-    free(copied_pkt); /* After handling ip packet, free copied*/
+    free(copied_pkt); /* After handling ip packet, free copied packet*/
 
   }
   else if(ethertype(packet)==ethertype_arp){
@@ -406,7 +423,7 @@ void sr_handlepacket(struct sr_instance* sr,
           curr_sr_pkt = curr_sr_pkt->next;
         }
         
-        sr_arpreq_destroy(&sr->cache, sr_arpreq_for_reply); /* HACK: Destroy here? */
+        sr_arpreq_destroy(&sr->cache, sr_arpreq_for_reply);
       }
     }else{
       printf("---arp opcode ERROR---\n");
@@ -519,9 +536,34 @@ void set_icmp3_hdr(sr_icmp_t3_hdr_t *icmp3_hdr, uint8_t icmp_type, uint8_t icmp_
   /*memcpy(&(icmp3_hdr->data), &data, ICMP_DATA_SIZE);*/
   
   /* Update ckecksum */
-  icmp3_hdr->icmp_sum = cksum(icmp3_hdr, total_len - sizeof(sr_ethernet_hdr_t) - sizeof(sr_ip_hdr_t));
+  /*icmp3_hdr->icmp_sum = cksum(icmp3_hdr, total_len - sizeof(sr_ethernet_hdr_t) - sizeof(sr_ip_hdr_t));*/
+  icmp3_hdr->icmp_sum = cksum(icmp3_hdr, sizeof(sr_icmp_t3_hdr_t));
 
   return;
+}
+
+/*
+ * Copy original incoming packet's IP header and data(ICMP type, code, cksum)
+ * into ICMP message that will be sent.
+ * FYI, original incoming packet would be UDP packet(which is 74B) for traceroute.
+*/
+void copy_iphdr_and_data_for_icmp(sr_icmp_t3_hdr_t* icmp_hdr, uint8_t* incoming_pkt, uint32_t incoming_pkt_len){
+  sr_ip_hdr_t *incoming_iphdr = (sr_ip_hdr_t*)(incoming_pkt + sizeof(sr_ethernet_hdr_t));
+  uint16_t incoming_iphdr_len = incoming_iphdr->ip_hl * 4;
+  
+  /* original incoming packet size is too short to copy ip header and 64 bit data */
+  assert(incoming_pkt_len >= (sizeof(sr_ethernet_hdr_t) + incoming_iphdr_len + 8/* data(type,code,cksum)*/));
+
+  uint8_t *icmp_data_ptr = ((uint8_t*)(icmp_hdr) + sizeof(sr_icmp_hdr_t)/* 4bytes=type(1B)+code(1B)+cksum(2B)*/ + 4 /*unused*/);
+  
+  memcpy(icmp_data_ptr, incoming_iphdr, incoming_iphdr_len + 8 /* original data=(type,code,cksum)?? or ICMP echo request/reply's data */);
+  /*Debug*/
+  Debug("Added incoming original ip header and data into icmp message: \n");
+  print_hdr_ip(icmp_data_ptr);
+  print_hdr_icmp(icmp_data_ptr + incoming_iphdr_len);
+
+  
+  
 }
 
 /*
