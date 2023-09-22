@@ -4,8 +4,6 @@ import sys
 import os
 
 def read_csv(file_path):
-    # Initialize lists to store the columns
-    Net, Node1, Interface1, Address1, Node2, Interface2, Address2, Cost = [], [], [], [], [], [], [], []
 
     with open(file_path, 'r') as file:
         csv_reader = csv.DictReader(file)
@@ -15,14 +13,6 @@ def read_csv(file_path):
         for row in csv_reader:
             if '-host' in row['Node1'] or '-host' in row['Node2']:
                 links.append(row)
-                # Net.append(row['Net'])
-                # Node1.append(row['Node1'])
-                # Interface1.append(row['Interface1'])
-                # Address1.append(row['Address1'])
-                # Node2.append(row['Node2'])
-                # Interface2.append(row['Interface2'])
-                # Address2.append(row['Address2'])
-                # Cost.append(row['Cost'])
     
     return links
 
