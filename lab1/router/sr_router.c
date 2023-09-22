@@ -240,8 +240,8 @@ void sr_handlepacket(struct sr_instance* sr,
         *   2-2. If not, add ARP request to ARP Queue.
         */
         
-        /* Lookup ARP Queue entries to find MAC addr of received IP dest address. */
-        struct sr_arpentry *sr_arpentry_copy = sr_arpcache_lookup(&sr->cache, iphdr->ip_dst);
+        /* Lookup ARP Queue entries to find MAC addr of routing IP addr */
+        struct sr_arpentry *sr_arpentry_copy = sr_arpcache_lookup(&sr->cache, rt_matched_entry->gw.s_addr);
         if(sr_arpentry_copy){/* If exists in arpcache, farward IP packet. */
           struct sr_if *out_fwd_sr_if = sr_get_interface(sr, rt_matched_entry->interface); /* Send through interface which matched in routing table.*/
 
@@ -261,6 +261,7 @@ void sr_handlepacket(struct sr_instance* sr,
           struct sr_arpreq *req = 0;
           req = sr_arpcache_queuereq(&(sr->cache), rt_matched_entry->gw.s_addr, copied_pkt, len, rt_matched_entry->interface);
           /*req = sr_arpcache_queuereq(&(sr->cache), copied_iphdr->ip_dst, copied_pkt, len, rt_matched_entry->interface); /* interface=outgoing interface*/
+          /*free(req); free!!! */
 
         }
       }
@@ -316,34 +317,32 @@ void sr_handlepacket(struct sr_instance* sr,
       /*ip_addr.s_addr = a_hdr->ar_tip; /* Debug*/
       /*Debug("\ta_hdr->ar_tip: %s\n", inet_ntoa(ip_addr)); /* Debug*/
 
-      if(a_hdr->ar_tip == received_sr_if->ip){
-        /* 1. Copy the packet */
-        uint8_t *copied_pkt = (uint8_t*)malloc(len);
-        memcpy(copied_pkt, packet, len);
-        /* 2. Edit the ethernet destination and source MAC addresses, plus whatever fields of the packet are relevant*/
-        sr_ethernet_hdr_t *copied_ehdr = (sr_ethernet_hdr_t *)copied_pkt;
-        sr_arp_hdr_t *copied_a_hdr = (struct sr_arp_hdr*)(copied_pkt + sizeof(struct sr_ethernet_hdr));
-        /* Ethernet header*/
-        memcpy(copied_ehdr->ether_dhost, e_hdr->ether_shost, sizeof(uint8_t) * ETHER_ADDR_LEN);
-        memcpy(copied_ehdr->ether_shost, received_sr_if->addr, sizeof(uint8_t) * ETHER_ADDR_LEN);
+    
+      /* 1. Copy the packet */
+      uint8_t *copied_pkt = (uint8_t*)malloc(len);
+      memcpy(copied_pkt, packet, len);
+      /* 2. Edit the ethernet destination and source MAC addresses, plus whatever fields of the packet are relevant*/
+      sr_ethernet_hdr_t *copied_ehdr = (sr_ethernet_hdr_t *)copied_pkt;
+      sr_arp_hdr_t *copied_a_hdr = (struct sr_arp_hdr*)(copied_pkt + sizeof(struct sr_ethernet_hdr));
+      /* Ethernet header*/
+      memcpy(copied_ehdr->ether_dhost, e_hdr->ether_shost, sizeof(uint8_t) * ETHER_ADDR_LEN);
+      memcpy(copied_ehdr->ether_shost, received_sr_if->addr, sizeof(uint8_t) * ETHER_ADDR_LEN);
 
-        /* ARP header */
-        copied_a_hdr->ar_op = htons(arp_op_reply);
-        memcpy(copied_a_hdr->ar_sha, received_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
-        copied_a_hdr->ar_sip = received_sr_if->ip;
-        memcpy(copied_a_hdr->ar_tha, a_hdr->ar_sha, sizeof(unsigned char) * ETHER_ADDR_LEN);
-        copied_a_hdr->ar_tip = a_hdr->ar_sip;
+      /* ARP header */
+      copied_a_hdr->ar_op = htons(arp_op_reply);
+      memcpy(copied_a_hdr->ar_sha, received_sr_if->addr, sizeof(unsigned char) * ETHER_ADDR_LEN);
+      copied_a_hdr->ar_sip = received_sr_if->ip;
+      memcpy(copied_a_hdr->ar_tha, a_hdr->ar_sha, sizeof(unsigned char) * ETHER_ADDR_LEN);
+      copied_a_hdr->ar_tip = a_hdr->ar_sip;
 
-        /* 3. Send it. */
-        sr_send_packet(sr, copied_pkt, len, interface);
-        free(copied_pkt); /* HACK: free here?*/
-      }
+      /* 3. Send it. */
+      sr_send_packet(sr, copied_pkt, len, interface);
+      free(copied_pkt);
       
     }
     else if(a_hdr->ar_op == htons(arp_op_reply)){
       /* -- If it is a reply to me -- */
       /* Cache it, go through my request queue and send outstanding pakcets
-      * (=fill out destination MAC addr of the raw Ethernet frame (in packets waiting on that packet)?) 
       */
       /* ARP reply is unicast. operation code == 2*/
 
