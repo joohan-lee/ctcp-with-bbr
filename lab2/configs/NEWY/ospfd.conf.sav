@@ -1,0 +1,30 @@
+!
+! Zebra configuration saved from vty
+!   2023/09/21 21:35:46
+!
+hostname G4_NEWY
+password G4_NEWY
+log file /var/log/quagga/ospfd_G4_NEWY.log
+!
+!
+!
+interface chic
+ ip ospf cost 1000
+!
+interface east
+!
+interface host
+!
+interface lo
+!
+interface wash
+ ip ospf cost 277
+!
+router ospf
+ network 4.0.1.0/24 area 0.0.0.0
+ network 4.0.4.0/24 area 0.0.0.0
+ network 4.101.0.0/24 area 0.0.0.0
+ network 6.0.1.0/24 area 0.0.0.0
+!
+line vty
+!

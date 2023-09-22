@@ -1,0 +1,27 @@
+!
+! Zebra configuration saved from vty
+!   2023/09/21 20:45:32
+!
+hostname G4_LOSA
+password G4_LOSA
+!
+interface host
+ ip address 4.108.0.2/24
+!
+interface hous
+ ip address 4.0.10.2/24
+!
+interface lo
+!
+interface salt
+ ip address 4.0.11.2/24
+!
+interface seat
+ ip address 4.0.13.1/24
+!
+ip forwarding
+ipv6 forwarding
+!
+!
+line vty
+!

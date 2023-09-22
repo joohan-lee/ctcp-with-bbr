@@ -1,0 +1,31 @@
+!
+! Zebra configuration saved from vty
+!   2023/09/21 21:11:58
+!
+hostname G4_HOUS
+password G4_HOUS
+log file /var/log/quagga/ospfd_G4_HOUS.log
+!
+!
+!
+interface atla
+ ip ospf cost 1385
+!
+interface host
+!
+interface kans
+ ip ospf cost 818
+!
+interface lo
+!
+interface losa
+ ip ospf cost 1705
+!
+router ospf
+ network 4.0.7.0/24 area 0.0.0.0
+ network 4.0.8.0/24 area 0.0.0.0
+ network 4.0.10.0/24 area 0.0.0.0
+ network 4.106.0.0/24 area 0.0.0.0
+!
+line vty
+!

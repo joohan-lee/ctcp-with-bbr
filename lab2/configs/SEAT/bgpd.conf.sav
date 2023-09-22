@@ -1,0 +1,10 @@
+!
+! Zebra configuration saved from vty
+!   2023/09/21 20:40:32
+!
+hostname G4_SEAT
+password G4_SEAT
+log file /var/log/quagga/bgpd_G4_SEAT.log
+!
+line vty
+!

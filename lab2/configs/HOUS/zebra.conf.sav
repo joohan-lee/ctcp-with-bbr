@@ -1,0 +1,27 @@
+!
+! Zebra configuration saved from vty
+!   2023/09/21 21:11:58
+!
+hostname G4_HOUS
+password G4_HOUS
+!
+interface atla
+ ip address 4.0.7.2/24
+!
+interface host
+ ip address 4.106.0.2/24
+!
+interface kans
+ ip address 4.0.8.2/24
+!
+interface lo
+!
+interface losa
+ ip address 4.0.10.1/24
+!
+ip forwarding
+ipv6 forwarding
+!
+!
+line vty
+!
