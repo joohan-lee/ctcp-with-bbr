@@ -1,0 +1,25 @@
+!
+! Zebra configuration saved from vty
+!   2023/10/04 23:36:49
+!
+hostname G4_SALT
+password G4_SALT
+log file /var/log/quagga/bgpd_G4_SALT.log
+!
+router bgp 4
+ bgp router-id 4.107.0.2
+ neighbor i2_salt peer-group
+ neighbor i2_salt remote-as 4
+ neighbor i2_salt update-source host
+ neighbor i2_salt next-hop-self
+ neighbor 4.101.0.2 peer-group i2_salt
+ neighbor 4.102.0.2 peer-group i2_salt
+ neighbor 4.103.0.2 peer-group i2_salt
+ neighbor 4.104.0.2 peer-group i2_salt
+ neighbor 4.105.0.2 peer-group i2_salt
+ neighbor 4.106.0.2 peer-group i2_salt
+ neighbor 4.108.0.2 peer-group i2_salt
+ neighbor 4.109.0.2 peer-group i2_salt
+!
+line vty
+!

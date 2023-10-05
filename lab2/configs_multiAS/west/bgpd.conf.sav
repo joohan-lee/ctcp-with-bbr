@@ -1,0 +1,15 @@
+!
+! Zebra configuration saved from vty
+!   2023/10/05 00:06:07
+!
+hostname G5_west
+password G5_west
+log file /var/log/quagga/bgpd_G5_west.log
+!
+router bgp 5
+ bgp router-id 5.0.1.2
+ neighbor 4.109.0.2 remote-as 4
+ neighbor 4.109.0.2 update-source host
+!
+line vty
+!

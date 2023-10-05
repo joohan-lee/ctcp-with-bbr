@@ -1,0 +1,24 @@
+!
+! Zebra configuration saved from vty
+!   2023/10/05 00:11:57
+!
+hostname G6_east
+password G6_east
+!
+interface lo
+!
+interface newy
+ ip address 6.0.1.2/24
+!
+interface server1
+ ip address 6.0.2.1/24
+!
+interface server2
+ ip address 6.0.3.1/24
+!
+ip forwarding
+ipv6 forwarding
+!
+!
+line vty
+!

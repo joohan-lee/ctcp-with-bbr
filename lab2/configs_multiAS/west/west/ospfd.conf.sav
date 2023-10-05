@@ -1,0 +1,22 @@
+!
+! Zebra configuration saved from vty
+!   2023/10/05 02:47:53
+!
+hostname G5_west
+password G5_west
+log file /var/log/quagga/ospfd_G5_west.log
+!
+!
+!
+interface lo
+!
+interface seat
+!
+interface sr
+!
+router ospf
+ network 5.0.1.0/24 area 0.0.0.0
+ network 5.0.2.0/24 area 0.0.0.0
+!
+line vty
+!
