@@ -298,8 +298,7 @@
 - router_name(config)# router bgp 5
 - router_name(config-router)# bgp router-id 5.0.1.2
 #### define eBGP peer
-- neighbor 4.109.0.2 remote-as 4
-<!-- - neighbor 4.109.0.2 update-source host -->
+- neighbor 5.0.1.1 remote-as 4
 <!-- #### iBGP
 - neighbor 5.0.2.2 remote-as 5
 - neighbor 5.0.2.2 update-source eth2
@@ -316,8 +315,7 @@
 - router_name(config)# router bgp 6
 - router_name(config-router)# bgp router-id 6.0.1.2
 #### define eBGP peer
-- neighbor 4.101.0.2 remote-as 4
-<!-- - neighbor 4.101.0.2 update-source host -->
+- neighbor 6.0.1.1 remote-as 4
 
 
 ## --- peer group 안 쓴 버전
