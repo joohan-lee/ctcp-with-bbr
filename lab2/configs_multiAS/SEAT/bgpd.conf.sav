@@ -1,6 +1,6 @@
 !
 ! Zebra configuration saved from vty
-!   2023/10/05 00:05:46
+!   2023/10/05 14:20:52
 !
 hostname G4_SEAT
 password G4_SEAT
@@ -8,7 +8,6 @@ log file /var/log/quagga/bgpd_G4_SEAT.log
 !
 router bgp 4
  bgp router-id 4.109.0.2
- network 5.0.1.0/24
  neighbor i2_seat peer-group
  neighbor i2_seat remote-as 4
  neighbor i2_seat update-source host

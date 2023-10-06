@@ -143,6 +143,7 @@ def run_vty_command(router, conf_cmds):
         print("Error: %s" % e)
 
 if __name__ == "__main__":
+    # How to run: python load_configs.py configs
     CONFIG_PATH = sys.argv[1]
     for router_name in ROUTER_NAMES:
         router_path = os.path.join(CONFIG_PATH, router_name)

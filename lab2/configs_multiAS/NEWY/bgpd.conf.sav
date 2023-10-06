@@ -1,6 +1,6 @@
 !
 ! Zebra configuration saved from vty
-!   2023/10/05 00:16:49
+!   2023/10/05 14:41:39
 !
 hostname G4_NEWY
 password G4_NEWY
@@ -8,7 +8,7 @@ log file /var/log/quagga/bgpd_G4_NEWY.log
 !
 router bgp 4
  bgp router-id 4.101.0.2
- network 6.0.1.0/24
+ network 6.0.0.0/16
  neighbor i2_newy peer-group
  neighbor i2_newy remote-as 4
  neighbor i2_newy update-source host

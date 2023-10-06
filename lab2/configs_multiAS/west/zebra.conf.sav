@@ -1,6 +1,6 @@
 !
 ! Zebra configuration saved from vty
-!   2023/10/05 00:06:07
+!   2023/10/05 16:00:44
 !
 hostname G5_west
 password G5_west
@@ -12,6 +12,8 @@ interface seat
 !
 interface sr
  ip address 5.0.2.1/24
+!
+ip route 5.1.1.0/24 5.0.2.2
 !
 ip forwarding
 ipv6 forwarding

@@ -1,6 +1,6 @@
 !
 ! Zebra configuration saved from vty
-!   2023/10/05 00:11:57
+!   2023/10/05 15:59:29
 !
 hostname G6_east
 password G6_east
@@ -8,7 +8,7 @@ log file /var/log/quagga/bgpd_G6_east.log
 !
 router bgp 6
  bgp router-id 6.0.1.2
- neighbor 4.101.0.2 remote-as 4
+ neighbor 6.0.1.1 remote-as 4
 !
 line vty
 !

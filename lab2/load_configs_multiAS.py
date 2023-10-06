@@ -47,19 +47,66 @@ def generate_command_from_config(file):
     for i, line in enumerate(lines):
         # a set of commands(configuration) is between ! and !.
         # For example, below are conf file.
-        # !
-        # interface hous
-        #  ip address 4.0.7.1/24
-        # !
-        # interface wash
-        #  ip ospf cost 700
-        # !
-        # router ospf
-        #  network 4.0.3.0/24 area 0.0.0.0
-        #  network 4.0.5.0/24 area 0.0.0.0
-        #  network 4.0.7.0/24 area 0.0.0.0
-        #  network 4.104.0.0/24 area 0.0.0.0
-        # !
+        '''
+        !
+        hostname G6_east
+        log file /var/log/quagga/ospfd_G6_east.log
+        log file /var/log/quagga/bgpd_G6_east.log
+        !
+        password G6_east
+        !
+        interface lo
+        !
+        interface newy
+        ip address 6.0.1.2/24
+        !
+        interface server1
+        ip address 6.0.2.1/24
+        !
+        interface server2
+        ip address 6.0.3.1/24
+        !
+        router bgp 6
+        bgp router-id 6.0.1.2
+        neighbor 6.0.1.1 remote-as 4
+        !
+        router ospf
+        network 6.0.1.0/24 area 0.0.0.0
+        network 6.0.2.0/24 area 0.0.0.0
+        network 6.0.3.0/24 area 0.0.0.0
+        !
+        ip forwarding
+        ipv6 forwarding
+        !
+        line vty
+        !
+        end
+        '''
+        '''
+        !
+        ! Zebra configuration saved from vty
+        !   2023/10/05 16:00:51
+        !
+        hostname G5_west
+        password G5_west
+        !
+        interface lo
+        !
+        interface seat
+        ip address 5.0.1.2/24
+        !
+        interface sr
+        ip address 5.0.2.1/24
+        !
+        ip route 5.1.1.0/24 5.0.2.2
+        !
+        ip forwarding
+        ipv6 forwarding
+        !
+        !
+        line vty
+        !
+        '''
         
         if not line.startswith('!') and (not line.strip() in exclude_set) \
             and (not (line.startswith('hostname') \
@@ -67,7 +114,11 @@ def generate_command_from_config(file):
                     or line.startswith('log file'))):
             command.append(line.strip())
         else:
-            if len(command) > 1:
+            if (len(command) > 1) or \
+                (len(command)==1 and command[0].strip().startswith('ip route') # 'ip route network gateway'
+                ):
+                # if the number of command lines is larger than 1, append the command. otherwise, drop it.
+                # or 'ip route' command always add to commands.
                 commands.append(command)
             command = []
     return commands
@@ -111,7 +162,6 @@ def run_vty_command(router, conf_cmds):
     else:
         cg = ''
 
-    # vty_cmd = 'vtysh -c \"%s\"' % (conf_cmd)
     vty_cmd = '"vtysh'
     vty_cmd += ' -c \\"conf t\\"'
     for conf_cmd in conf_cmds:
@@ -131,21 +181,20 @@ def run_vty_command(router, conf_cmds):
 
     
     vty_cmd = "exec sudo mxexec -a %s -b %s -k %s bash -c %s %s" % (pid, pid, pid, cg, vty_cmd)
-    # vty_cmd = "exec sudo mxexec -a %s -b %s -k %s -c %s %s" % (pid, pid, pid, cg, vty_cmd)
     
     # Examples
     # ./go_to.sh ATLA => e.g., exec sudo mxexec -a 4046 -b 4046 -k 4046 bash
     # exec sudo mxexec -a 4046 -b 4046 -k 4046 bash -c "vtysh -c \"show run\""
     # ./go_to.sh NEWY -c "vtysh -c \"show run\"" => exec sudo mxexec -a 4088 -b 4088 -k 4088 -c vtysh -c "show run"
     try:
-        # print('subprocess started')
         subprocess.check_call(vty_cmd, shell=True)
-        # print('subprocess ended')
     except subprocess.CalledProcessError as e:
         print("Error: %s" % e)
 
 if __name__ == "__main__":
-    # How to run: python load_configs.py configs_multiAS
+    # How to run: python load_configs_multiAS.py configs_multiAS
+    if len(sys.argv) != 2:
+        raise Exception('Usage: python load_configs_multiAS.py [config_dir].\n [config_dir] argument is mandatory.')
     CONFIG_PATH = sys.argv[1]
     for router_name in ROUTER_NAMES:
         router_path = os.path.join(CONFIG_PATH, router_name)
