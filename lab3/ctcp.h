@@ -40,26 +40,35 @@
 
 /**
  * TCP Connection Termination state
- * ref: http://www.tcpipguide.com/free/t_TCPConnectionTermination-2.htm#google_vignette
+ * ref for when client initiates termination: http://www.tcpipguide.com/free/t_TCPConnectionTermination-2.htm#google_vignette
+ * ref for when server and client simultaneously initiates termination: http://www.tcpipguide.com/free/t_TCPConnectionTermination-4.htm
 */
 enum{
 
-  /* Connection established. (not closing) for both client and server */
+  /* Connection is on established (not closing) */
   CONN_ESTABLISHED,
 
-  /* Client's states (where initiates termination)*/
+  /* where initiates termination*/
   FIN_WAIT_1,
   FIN_WAIT_2,
 
-  /* Server's states (where responds termination(FIN))*/
+  /* where responds to termination(FIN)) */
   CLOSE_WAIT,
   LAST_ACK,
 
   /* Client's state (where initiates termination)*/
+  CLOSING,
   TIME_WAIT,
   CLOSED
 };
 
+/**
+ * Maximum Segment Lifetime.
+*/
+// FIN Timeout is generally 60 seconds(=60000ms) in most implementations of TCP in linux.
+// You can check the value by printing 'cat /proc/sys/net/ipv4/tcp_fin_timeout'
+#define FIN_TIMEOUT 60000
+#define MSL (2*FIN_TIMEOUT)
 
 /**
  * cTCP configuration struct.
@@ -73,8 +82,8 @@ typedef struct {
   uint16_t send_window;    /* Send window size (a.k.a. receive window size of
                               the OTHER host). For Lab 1 this value
                               will be 1 * MAX_SEG_DATA_SIZE */
-  int timer;               /* How often ctcp_timer() is called, in ms */
-  int rt_timeout;          /* Retransmission timeout, in ms */
+  int timer;               /* How often ctcp_timer() is called, in ms. =TIME_INTERVAL */
+  int rt_timeout;          /* Retransmission timeout, in ms. =RT_INTERVAL=5*TIME_INTERVAL */
 } ctcp_config_t;
 
 /**
@@ -221,5 +230,8 @@ void ctcp_timer();
 ctcp_segment_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
 int is_cksum_valid(ctcp_segment_t* segment, size_t len);
 int is_ack(ctcp_state_t* state, ctcp_segment_t* segment);
+void send_segment(ctcp_state_t* state, ctcp_segment_t* segment, size_t len);
+int is_new_data_segment(ctcp_state_t *state, ctcp_segment_t *rcvd_segment);
+void send_only_ack(ctcp_state_t* state, ctcp_segment_t* rcvd_segment);
 
 #endif /* CTCP_H */
