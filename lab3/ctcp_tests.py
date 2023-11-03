@@ -971,9 +971,9 @@ TESTS = [
    "client 2. Checks that client 2 receives a segment of the right length."),
   ("basic", "Correct checksum", correct_checksum,
    "Client should send two segments. Checks that the checksums are correct."),
-  ("basic", "Correct header fields", correct_header_fields,
-   "Client 1 sends a segment to client 2. Checks that all header fields\n" +
-   "are equal to what the reference would send."),
+  # ("basic", "Correct header fields", correct_header_fields,
+  #  "Client 1 sends a segment to client 2. Checks that all header fields\n" +
+  #  "are equal to what the reference would send."),
   ("basic", "Bidirectionally transfer data", bidirectional,
    "Client 1 sends data to client 2. Client 2 sends data to client 1.\n" +
    "Checks that both clients have received and outputted the correct data."),

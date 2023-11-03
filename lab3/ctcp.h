@@ -38,6 +38,28 @@
 #define ACK ntohl(TH_ACK)
 #define FIN ntohl(TH_FIN)
 
+/**
+ * TCP Connection Termination state
+ * ref: http://www.tcpipguide.com/free/t_TCPConnectionTermination-2.htm#google_vignette
+*/
+enum{
+
+  /* Connection established. (not closing) for both client and server */
+  CONN_ESTABLISHED,
+
+  /* Client's states (where initiates termination)*/
+  FIN_WAIT_1,
+  FIN_WAIT_2,
+
+  /* Server's states (where responds termination(FIN))*/
+  CLOSE_WAIT,
+  LAST_ACK,
+
+  /* Client's state (where initiates termination)*/
+  TIME_WAIT,
+  CLOSED
+};
+
 
 /**
  * cTCP configuration struct.
@@ -180,5 +202,24 @@ void ctcp_output(ctcp_state_t *state);
  * Note that this is called BEFORE ctcp_init() so state_list might be NULL.
  */
 void ctcp_timer();
+
+/* LOG */
+#define _log_info(...){ \
+  fprintf(stderr, "[_INFO] ");\
+  fprintf(stderr, __VA_ARGS__);\
+}
+
+#define _log_debug(...){ \
+  fprintf(stderr, "[DEBUG] ");\
+  fprintf(stderr, __VA_ARGS__);\
+}
+
+/* Define constant */
+#define HDR_CTCP_SEGMENT sizeof(ctcp_segment_t)
+
+// ctcp_segment_t* create_segment(ctcp_state_t* state, uint8_t flags, size_t data_sz, uint8_t data[]);
+ctcp_segment_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
+int is_cksum_valid(ctcp_segment_t* segment, size_t len);
+int is_ack(ctcp_state_t* state, ctcp_segment_t* segment);
 
 #endif /* CTCP_H */

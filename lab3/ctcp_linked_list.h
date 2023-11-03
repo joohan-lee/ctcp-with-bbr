@@ -56,6 +56,10 @@ void ll_destroy(linked_list_t *list);
  *          list or object is NULL.
  */
 ll_node_t *ll_add(linked_list_t *list, void *object);
+/**
+* Adds an object to the in-order location.
+*/
+ll_node_t *ll_add_in_order(linked_list_t *list, void *object);
 
 /**
  * Adds an object to the front of the linked list. The resulting node is freed
@@ -94,6 +98,7 @@ ll_node_t *ll_add_after(linked_list_t *list, ll_node_t *node, void *object);
  *          or the node is NULL.
  */
 void *ll_remove(linked_list_t *list, ll_node_t *node);
+ssize_t ll_remove_acked_segments(linked_list_t *list, uint32_t received_ackno);
 
 /**
  * Searches and returns the node containing the specified object. If it
