@@ -189,10 +189,10 @@ ssize_t ll_remove_acked_segments(linked_list_t *list, uint32_t received_ackno){
   while(curr){
     ctcp_transmission_info_t *curr_object = (ctcp_transmission_info_t*)curr->object;
     ctcp_segment_t *curr_segment = &(curr_object->segment);
-    if(curr_segment->seqno < received_ackno){
+    if(ntohl(curr_segment->seqno) < ntohl(received_ackno)){
       ll_node_t *remove_node = curr;
       curr = curr->prev;
-      acked_size += (curr_segment->len - HDR_CTCP_SEGMENT);
+      acked_size += (ntohs(curr_segment->len) - HDR_CTCP_SEGMENT);
       ll_remove(list, remove_node);
       free(curr_object);
     }

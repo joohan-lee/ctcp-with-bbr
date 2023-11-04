@@ -145,7 +145,6 @@ void ctcp_destroy(ctcp_state_t *state) {
 }
 
 void ctcp_read(ctcp_state_t *state) {
-  _log_info("[TX]ctcp read called.\n");
   uint8_t stdin_buf[MAX_SEG_DATA_SIZE];
   memset(stdin_buf, 0, MAX_SEG_DATA_SIZE); // Clean memory
   int stdin_data_sz = 0;
@@ -153,7 +152,8 @@ void ctcp_read(ctcp_state_t *state) {
   /* Read STDIN into buf until no data is available */
   if((stdin_data_sz = conn_input(state->conn, stdin_buf, MAX_SEG_DATA_SIZE)) > 0){
     /* Create a single segment(Segment size is up to 1 * MAX_SEG_DATA_SIZE) for lab1 */
-    ctcp_transmission_info_t *trans_info = create_segment(state->curr_seqno, state->otherside_ackno, TH_ACK, stdin_data_sz, stdin_buf);
+    // ctcp_transmission_info_t *trans_info = create_segment(state->curr_seqno, state->otherside_ackno, TH_ACK, stdin_data_sz, stdin_buf);
+    ctcp_transmission_info_t *trans_info = create_segment(state, TH_ACK, stdin_data_sz, stdin_buf);
     _log_info("[TX]Segment is created. ");
     ctcp_segment_t *segment = &(trans_info->segment);
     print_hdr_ctcp(segment);
@@ -172,7 +172,8 @@ void ctcp_read(ctcp_state_t *state) {
       This host's TCP sends a segment with the FIN bit set to request that the connection be closed. 
       ESTABLISHED -> FIN_WAIT_1*/
       uint8_t dummy = 0; /* dummy data for FIN. FIN is considered as 1-byte segment. */
-      ctcp_transmission_info_t *fin_trans_info = (ctcp_transmission_info_t*)create_segment(state->curr_seqno, state->otherside_ackno, TH_FIN, FIN_SEGMENT_DATA_SIZE, &dummy);
+      // ctcp_transmission_info_t *fin_trans_info = (ctcp_transmission_info_t*)create_segment(state->curr_seqno, state->otherside_ackno, TH_FIN, FIN_SEGMENT_DATA_SIZE, &dummy);
+      ctcp_transmission_info_t *fin_trans_info = (ctcp_transmission_info_t*)create_segment(state, TH_FIN, FIN_SEGMENT_DATA_SIZE, &dummy);
       _log_info("[tcp termination]Client state transitions from CONN_ESTABLISHED to FIN_WATI1.\n");
       send_segment(state, fin_trans_info, FIN_SEGMENT_DATA_SIZE);
       state->termination_state = FIN_WAIT_1;
@@ -182,7 +183,8 @@ void ctcp_read(ctcp_state_t *state) {
       This host sends its FIN to the other host. 
       CLOSE_WAIT -> LAST_ACK */
       uint8_t dummy = 0; /* dummy data for FIN. FIN is considered as 1-byte segment. */
-      ctcp_transmission_info_t *fin_trans_info = (ctcp_transmission_info_t*)create_segment(state->curr_seqno, state->otherside_ackno, TH_FIN, FIN_SEGMENT_DATA_SIZE, &dummy);
+      // ctcp_transmission_info_t *fin_trans_info = (ctcp_transmission_info_t*)create_segment(state->curr_seqno, state->otherside_ackno, TH_FIN, FIN_SEGMENT_DATA_SIZE, &dummy);
+      ctcp_transmission_info_t *fin_trans_info = (ctcp_transmission_info_t*)create_segment(state, TH_FIN, FIN_SEGMENT_DATA_SIZE, &dummy);
       _log_info("[tcp termination]Server state transitions from CONN_ESTABLISHED to LAST_ACK.\n");
       send_segment(state, fin_trans_info, FIN_SEGMENT_DATA_SIZE);
       state->termination_state = LAST_ACK;
@@ -198,7 +200,7 @@ void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
 
   /* Check if cksum is valid. If not, drop the packet. */
   if(!is_cksum_valid(segment, len)){
-    fprintf(stderr, "Invalid checksum. Drop the received packet.\n");
+    fprintf(stderr, "[Rx] Invalid checksum. Drop the received packet.\n");
     free(segment);
     return;
   }
@@ -281,9 +283,43 @@ void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
     _log_info("ACK segment received.\n");
     /* Remove all sent segments that has acked from transmission buffer(='state->segments' linked list)*/
     uint32_t size_of_acked_segments = ll_remove_acked_segments(state->segments, segment->ackno);
+    _log_info("%d bytes of segment data was acked. tx_in_flight_bytes %d->", size_of_acked_segments,state->tx_in_flight_bytes);
     state->tx_in_flight_bytes -= size_of_acked_segments;
+    fprintf(stderr,"%d.\n", state->tx_in_flight_bytes);
 
-    // TODO: Send pending segments(= segments that wasn't sent due to lack of send window(other's buf size))
+    // Send pending segments(= segments that wasn't sent due to lack of send_window(other's advertised buf size))
+    
+    while(ll_length(state->waiting_segments)){
+      ll_node_t *curr_node = ll_front(state->waiting_segments);
+      // Before sending, first check if receiver's buffer is available.(Flow control)
+      ctcp_transmission_info_t *trans_info = (ctcp_transmission_info_t*)(curr_node->object);
+      ctcp_segment_t *pending_segment = &(trans_info->segment);
+      const uint32_t data_sz = ntohs(pending_segment->len) - HDR_CTCP_SEGMENT;
+
+      if((state->tx_in_flight_bytes + data_sz) > state->config.send_window){
+        // If the other side(=receiver)'s buffer is not available, stop sending.
+        _log_info("[Tx] If sending %d bytes of pending data, in-flight bytes(%d) will overflow receiver's window size(%d). Stop sending.\n",
+           data_sz, state->tx_in_flight_bytes, state->config.send_window);
+        break;
+      }
+      
+      // send pending segments after update up-to-date ackno and cksum.
+      ctcp_transmission_info_t *curr_trans_info = (ctcp_transmission_info_t*)(ll_remove(state->waiting_segments, curr_node));
+      ctcp_segment_t *segment = &(curr_trans_info->segment);
+      state->tx_in_flight_bytes += (ntohs(segment->len) - HDR_CTCP_SEGMENT);
+      // update segment's acknowledgement number to up-to-date ackno.
+      segment->ackno = htonl(state->otherside_ackno);
+      segment->cksum = 0;
+      segment->cksum = cksum(segment, htons(segment->len)); // update checksum since segment's ackno might be changed.
+      _log_info("[Tx] waiting segment were sent.\n");
+      print_hdr_ctcp(segment);
+      assert(conn_send(state->conn, segment, ntohs(segment->len)) > 0);
+
+      // store transmitted segments to 'segments'(transmission buffer)
+      curr_trans_info->num_of_transmission += 1;
+      ll_add(state->segments, curr_trans_info);
+
+    }
     free(segment);
     return;
   }
@@ -292,15 +328,26 @@ void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
    * Otherwise, drop it. 
    */
   if(is_new_data_segment(state, segment)){
-    ll_node_t *added_node = ll_add_in_order(state->received_segments, segment); // TODO: receiver buffer 적절한 위치에 들어가는지 테스트 필요.
+    ll_node_t *added_node = ll_add_in_order(state->received_segments, segment);
     if(added_node){
       state->rx_waiting_bytes += (len - HDR_CTCP_SEGMENT); //Increase size of data that received but not output.
-      _log_info("Current Rx buffer size waiting for output: %d after added.\n", state->rx_waiting_bytes);
+      _log_info("Current Rx buffer size waiting for output / rcvr buffer: %d/%d after added.\n", state->rx_waiting_bytes, state->config.recv_window);
+
     }else{
       /* If it was not added into receiver buffer, Drop the packet(segment). */
       free(segment);
     }
-    // TODO: Receiver buffer(state->received_segments) overflow하면 drop하기.
+    
+    // if this host's receiver buffer overflows, drop packets until receiver buffer is available.
+    //TODO
+    // while(state->rx_waiting_bytes > state->config.recv_window){
+    //   // 받았지만 output을 기다리고 있는 데이터의 크기가 sender로부터 받을 수 있는 용량부터 클 때. 
+    //   ll_node_t *last_node = ll_back(state->received_segments);
+    //   ctcp_segment_t *s = (ctcp_segment_t*)(last_node->object);
+    //   state->rx_waiting_bytes -= ntohl(s->len) - HDR_CTCP_SEGMENT;
+    //   ctcp_segment_t *drop = (ctcp_segment_t*)ll_remove(state->received_segments, last_node); // Drop the segment.
+    //   free(drop);
+    // }
 
   }else{
     _log_info("Data was already received. Drop it.\n");
@@ -316,9 +363,8 @@ void ctcp_output(ctcp_state_t *state) {
     ll_node_t *node = ll_front(state->received_segments);
     ctcp_segment_t *rcvd_segment = node->object;
 
-    /* TODO: Output segment only if it is in-order.
+    /* Output segment only if it is in-order.
      새로 받은 segment랑 이전에 output(ack)했던 segment 사이에 hole이 없을 때만 쭉 output하기.
-     =>개발 완료. 테스트 필요.
     */
     if(rcvd_segment->seqno != htonl(state->rx_next_output_seqno)){
       _log_info("Received seqno %d, but seqno %d is waiting for output.\n", ntohl(rcvd_segment->seqno), state->rx_next_output_seqno);
@@ -333,7 +379,7 @@ void ctcp_output(ctcp_state_t *state) {
     if(available_bufspace >= rcvd_data_sz){
       state->rx_next_output_seqno += (ntohs(rcvd_segment->len) - HDR_CTCP_SEGMENT);
       state->rx_waiting_bytes -= (ntohs(rcvd_segment->len) - HDR_CTCP_SEGMENT);
-      _log_info("Output data to STDOUT. Available bufspace: %lu.\n", available_bufspace);
+      _log_info("Output to STDOUT. Available bufspace: %lu.\n", available_bufspace);
       _log_info("state->rx_next_output_seqno: %d, state->rx_waiting_bytes: %d. after outputting.\n", state->rx_next_output_seqno, state->rx_waiting_bytes);
       assert(conn_output(state->conn, rcvd_segment->data, rcvd_data_sz));
 
@@ -343,7 +389,7 @@ void ctcp_output(ctcp_state_t *state) {
 
       // Remove handled node from linked list(received_segments)
       ll_remove(state->received_segments, node); // This frees the node.
-      //free(rcvd_segment); ??
+      free(rcvd_segment); //??
     }
     else{
       _log_info("[ctcp_output] failed to output since output bufspace is not enough.\n");
@@ -360,8 +406,8 @@ void ctcp_timer() {
   ctcp_state_t *curr_state = state_list;
   /* Go through state_list to resubmit segments and tear down connections. */
   while(curr_state){
-    if(curr_state->termination_state == TIME_WAIT){ // + or LAST_ACK ??
-      /* TIME_WAIT */
+    if(curr_state->termination_state == TIME_WAIT || curr_state->termination_state == LAST_ACK){
+      /* TIME_WAIT or LAST_ACK */
       curr_state->time_wait_in_ms += curr_state->config.timer;
 
       if((curr_state->time_wait_in_ms > 2 * MSL) || (ll_length(curr_state->segments) == 0)){
@@ -384,9 +430,6 @@ void ctcp_timer() {
       while(curr_node){
         ctcp_transmission_info_t *trans_info = (ctcp_transmission_info_t*)curr_node->object;
         trans_info->time_elapsed += curr_state->config.timer;
-        // _log_info("trans_info->time_elapsed: %d\n", trans_info->time_elapsed);
-        // _log_info("curr_state->config.timer: %d\n", curr_state->config.timer);
-        // _log_info("curr_state->config.rt_timeout: %d\n", curr_state->config.rt_timeout);
         
         if(trans_info->num_of_transmission >= 6 || trans_info->time_elapsed >= 6*(curr_state->config.rt_timeout)){
           // Tear down if 6th retransmission happens.(segment can be sent up to 6 times in total.)
@@ -414,7 +457,7 @@ void ctcp_timer() {
   }
 }
 
-ctcp_transmission_info_t* create_segment(uint32_t seqno, uint32_t ackno,
+ctcp_transmission_info_t* create_segment(ctcp_state_t *state,
   uint8_t flags, size_t data_sz, uint8_t data[]){
   size_t segment_total_sz = HDR_CTCP_SEGMENT + data_sz;
   ctcp_transmission_info_t *trans_info = (ctcp_transmission_info_t *)malloc(sizeof(ctcp_transmission_info_t) + segment_total_sz);
@@ -422,11 +465,11 @@ ctcp_transmission_info_t* create_segment(uint32_t seqno, uint32_t ackno,
   trans_info->num_of_transmission = 0;
 
   ctcp_segment_t *segment = &(trans_info->segment);
-  segment->seqno = htonl(seqno);
-  segment->ackno = htonl(ackno);
+  segment->seqno = htonl(state->curr_seqno);
+  segment->ackno = htonl(state->otherside_ackno);
   segment->len = htons(segment_total_sz);
   segment->flags = flags; // Network byte order
-  segment->window = 0; // TODO: Receiver window size
+  segment->window = htons(state->config.recv_window); // Advertise the size of bytes that can be received from sender.
   segment->cksum = 0;
   memcpy(segment->data, data, data_sz);
 
@@ -451,21 +494,25 @@ int is_ack(ctcp_state_t* state, ctcp_segment_t* segment){
 }
 
 void send_segment(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, size_t data_len){
-  /* TODO: Send only if rcvr buf is available. Otherwise, store segments in waiting_segments.*/
+  /* Send only if the other(receiver)'s buf is available. Otherwise, store segments in waiting_segments.*/
   ctcp_segment_t *segment = &trans_info->segment;
-  if(1){
+  state->curr_seqno += data_len; // Update sequence number.
+  if((state->tx_in_flight_bytes + data_len) <= state->config.send_window){
     state->tx_in_flight_bytes += data_len;
-    state->curr_seqno += data_len; // Update sequence number.
-    // TODO: Update otherside's ackno??
     trans_info->num_of_transmission += 1; // When 7, terminate??
+    // update segment's acknowledgement number because this host could ack received segments while transmitting.
+    segment->ackno = htonl(state->otherside_ackno);
+    segment->cksum = 0;
+    segment->cksum = cksum(segment, htons(segment->len)); // update checksum since segment's ackno might be changed.
     ll_add(state->segments, trans_info);
     /* Send it to the connection associated with the passed in state */
     _log_info("[TX] Sent segment.\n");
     print_hdr_ctcp(segment);
     assert(conn_send(state->conn, segment, data_len + HDR_CTCP_SEGMENT) > 0);
   }else{
-    _log_info("[TX]Receiver buffer is not enough. Segment is stored in waiting_segments.\n");
-    ll_add(state->waiting_segments, segment);
+    _log_info("[TX]Receiver buffer(%d) is not enough to send %lu bytes of data on connection w/ %d in-flight bytes. Segment is stored in waiting_segments.\n",
+      state->config.send_window, data_len, state->tx_in_flight_bytes);
+    ll_add(state->waiting_segments, trans_info);
     _log_info("# of waiting segments: %d.\n", state->waiting_segments->length);
   }
 }
@@ -486,11 +533,13 @@ void send_only_ack(ctcp_state_t* state, ctcp_segment_t* rcvd_segment){
   rcvd_segment->ackno = htonl(state->otherside_ackno);
   rcvd_segment->len = htons(HDR_CTCP_SEGMENT);
   rcvd_segment->flags = TH_ACK;
-  rcvd_segment->window = 0; // TODO
+  rcvd_segment->window = htons(state->config.recv_window); // Advertise the size of bytes that can be received from sender.
   rcvd_segment->cksum = 0;
   
   rcvd_segment->cksum = cksum(rcvd_segment, HDR_CTCP_SEGMENT);
   assert(conn_send(state->conn, rcvd_segment, HDR_CTCP_SEGMENT) > 0);
+  _log_info("[Rx] ACK sent.\n");
+  print_hdr_ctcp(rcvd_segment);
 
   // uint32_t new_ackno = ntohl(rcvd_segment->seqno) + ntohs(rcvd_segment->len);
   // ctcp_segment_t *ack_segment = create_segment(state->curr_seqno, new_ackno, TH_ACK, 0, NULL);

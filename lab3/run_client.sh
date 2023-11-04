@@ -1,6 +1,6 @@
 #!/bin/bash
 # base
-# sudo ./ctcp -p 9999 -c localhost:8888
+sudo ./ctcp -p 9999 -c localhost:8888
 
 # log version
 # sudo ./ctcp -p 9999 -c localhost:8888 -l
@@ -22,7 +22,7 @@
 # sudo ./ctcp -c localhost:9999 -p 10001
 
 # Unreliability
-sudo ./ctcp -c localhost:8888 -p 12345 --drop 80
-# sudo ./ctcp -c localhost:8888 -p 12345 --corrupt 80
+# sudo ./ctcp -c localhost:8888 -p 12345 --drop 80
+# sudo ./ctcp -c localhost:8888 -p 12345 --corrupt 100
 # sudo ./ctcp -c localhost:8888 -p 12345 --delay 100
 # sudo ./ctcp -c localhost:8888 -p 12345 --duplicate 100

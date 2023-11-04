@@ -237,7 +237,8 @@ typedef struct{
 #define HDR_CTCP_SEGMENT sizeof(ctcp_segment_t)
 
 // ctcp_segment_t* create_segment(ctcp_state_t* state, uint8_t flags, size_t data_sz, uint8_t data[]);
-ctcp_transmission_info_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
+// ctcp_transmission_info_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
+ctcp_transmission_info_t* create_segment(ctcp_state_t *state, uint8_t flags, size_t data_sz, uint8_t data[]);
 int is_cksum_valid(ctcp_segment_t* segment, size_t len);
 int is_ack(ctcp_state_t* state, ctcp_segment_t* segment);
 void send_segment(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, size_t len);
