@@ -22,6 +22,17 @@ void ll_destroy(linked_list_t *list) {
   free(list);
 }
 
+void ll_free_objects(linked_list_t *list){
+  if (list == NULL)
+    return;
+
+  ll_node_t *curr = list->head;
+  while(curr != NULL){
+    free(curr->object);
+    curr = curr->next;
+  }
+}
+
 ll_node_t *ll_create_node(void *object) {
   ll_node_t *node = calloc(sizeof(ll_node_t), 1);
   node->next = NULL;
@@ -176,13 +187,14 @@ ssize_t ll_remove_acked_segments(linked_list_t *list, uint32_t received_ackno){
   ll_node_t *curr = ll_front(list);
   uint32_t acked_size = 0;
   while(curr){
-    ctcp_segment_t *curr_segment = (ctcp_segment_t*)curr->object;
+    ctcp_transmission_info_t *curr_object = (ctcp_transmission_info_t*)curr->object;
+    ctcp_segment_t *curr_segment = &(curr_object->segment);
     if(curr_segment->seqno < received_ackno){
       ll_node_t *remove_node = curr;
       curr = curr->prev;
-      acked_size += curr_segment->len;
+      acked_size += (curr_segment->len - HDR_CTCP_SEGMENT);
       ll_remove(list, remove_node);
-      free(curr_segment); //??
+      free(curr_object);
     }
     if(curr==NULL){
       break;

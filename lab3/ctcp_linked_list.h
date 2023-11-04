@@ -9,6 +9,7 @@
 #define CTCP_LINKED_LIST_H
 
 #include "ctcp_sys.h"
+#include "ctcp.h"
 
 /** Node in the linked list. */
 struct ll_node {
@@ -43,6 +44,7 @@ linked_list_t *ll_create();
  * list: The list to destroy.
  */
 void ll_destroy(linked_list_t *list);
+void ll_free_objects(linked_list_t *list);
 
 /**
  * Adds an object to the back of the linked list. Returns the linked list node

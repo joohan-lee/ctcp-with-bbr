@@ -83,7 +83,7 @@ typedef struct {
                               the OTHER host). For Lab 1 this value
                               will be 1 * MAX_SEG_DATA_SIZE */
   int timer;               /* How often ctcp_timer() is called, in ms. =TIME_INTERVAL */
-  int rt_timeout;          /* Retransmission timeout, in ms. =RT_INTERVAL=5*TIME_INTERVAL */
+  int rt_timeout;          /* Retransmission timeout, in ms. =RT_INTERVAL */
 } ctcp_config_t;
 
 /**
@@ -223,14 +223,24 @@ void ctcp_timer();
   fprintf(stderr, __VA_ARGS__);\
 }
 
+/**
+ * Transmitter should know about transmitted time of each segment to retransmit in the future.
+ *
+*/
+typedef struct{
+  uint32_t time_elapsed; /* time elapsed from last transmission of this segment. */
+  uint32_t num_of_transmission; /* The number of transmissions of this segment. (not only retransmission) */
+  ctcp_segment_t segment;
+} ctcp_transmission_info_t;
+
 /* Define constant */
 #define HDR_CTCP_SEGMENT sizeof(ctcp_segment_t)
 
 // ctcp_segment_t* create_segment(ctcp_state_t* state, uint8_t flags, size_t data_sz, uint8_t data[]);
-ctcp_segment_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
+ctcp_transmission_info_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
 int is_cksum_valid(ctcp_segment_t* segment, size_t len);
 int is_ack(ctcp_state_t* state, ctcp_segment_t* segment);
-void send_segment(ctcp_state_t* state, ctcp_segment_t* segment, size_t len);
+void send_segment(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, size_t len);
 int is_new_data_segment(ctcp_state_t *state, ctcp_segment_t *rcvd_segment);
 void send_only_ack(ctcp_state_t* state, ctcp_segment_t* rcvd_segment);
 
