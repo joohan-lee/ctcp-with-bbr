@@ -116,6 +116,7 @@ ctcp_state_t *ctcp_init(conn_t *conn, ctcp_config_t *cfg) {
   state->time_wait_in_ms=0;
 
   state->config = *cfg;
+  free(cfg);
 
   return state;
 }
@@ -286,7 +287,6 @@ void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
     fprintf(stderr,"%d.\n", state->tx_in_flight_bytes);
 
     // Send pending segments(= segments that wasn't sent due to lack of send_window(other's advertised buf size))
-    
     while(ll_length(state->waiting_segments)){
       ll_node_t *curr_node = ll_front(state->waiting_segments);
       // Before sending, first check if receiver's buffer is available.(Flow control)
