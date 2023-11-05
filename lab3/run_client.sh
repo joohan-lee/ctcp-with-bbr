@@ -26,3 +26,9 @@ sudo ./ctcp -p 9999 -c localhost:8888
 # sudo ./ctcp -c localhost:8888 -p 12345 --corrupt 100
 # sudo ./ctcp -c localhost:8888 -p 12345 --delay 100
 # sudo ./ctcp -c localhost:8888 -p 12345 --duplicate 100
+
+# Large Binary Files
+# sudo ./ctcp -p 9999 -c localhost:8888 < original_binary
+
+# Memory leaks
+# sudo valgrind --leak-check=full --show-leak-kinds=all ./ctcp -p 9999 -c localhost:8888

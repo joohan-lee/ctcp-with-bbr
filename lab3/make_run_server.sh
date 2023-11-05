@@ -14,3 +14,9 @@ sudo ./ctcp -s -p 8888
 # - Each client that connects to the server will be associated with one instance
 #   of the application (refer to the diagram for Lab 2).
 # sudo ./ctcp -s -p 9999 -- sh
+
+# Large Binary Files
+# sudo ./ctcp -s -p 8888 > newly_created_test_binary
+
+# Memory leaks
+# sudo valgrind --leak-check=full --show-leak-kinds=all ./ctcp -s -p 8888
