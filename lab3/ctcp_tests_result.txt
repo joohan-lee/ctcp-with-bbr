@@ -1,0 +1,1324 @@
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 17:18:21 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 17:23:21 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 17:27:19 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... FAIL
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 17:30:51 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 17:34:42 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... FAIL
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 17:38:51 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. FAIL
+     |-> Test failed but *may* pass if timeout is increased
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 17:42:19 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 17:45:59 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. FAIL
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 17:49:32 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ FAIL
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... FAIL
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 25/27
+
+SCORE: 250/270
+Sat Nov  4 19:07:34 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 19:11:05 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 19:18:22 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 19:34:05 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 19:39:11 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 20:15:20 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 20:24:57 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... FAIL
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 20:28:31 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 20:35:05 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Sat Nov  4 20:42:14 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 20:54:37 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 21:04:37 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 21:12:59 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 21:27:16 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 21:31:04 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
+Sat Nov  4 21:37:35 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ FAIL
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 21:41:13 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... FAIL
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 26/27
+
+SCORE: 260/270
+Sat Nov  4 21:46:37 PDT 2023
+gcc -c -g -Wall -Werror -pthread ctcp_linked_list.c -o ctcp_linked_list.o
+gcc -c -g -Wall -Werror -pthread ctcp_utils.c -o ctcp_utils.o
+gcc -c -g -Wall -Werror -pthread ctcp.c -o ctcp.o
+gcc -c -g -Wall -Werror -pthread ctcp_sys_internal.c -o ctcp_sys_internal.o
+gcc -c -g -Wall -Werror -pthread ctcp_bbr.c -o ctcp_bbr.o
+gcc -g -Wall -Werror -pthread -o ctcp ctcp_linked_list.o ctcp_utils.o ctcp.o ctcp_sys_internal.o ctcp_bbr.o
+Making cTCP...
+--------------------------------------------------------------------------------
+Starting tests...
+
+Results
+-------
+  1. Client sends data ................................................ PASS
+  2. Client receives data ............................................. PASS
+  3. Correct checksum ................................................. PASS
+  4. Correct header fields ............................................ PASS
+  5. Bidirectionally transfer data .................................... PASS
+  6. Handles data larger than window size ............................. PASS
+  7. Handles segment corruption ....................................... PASS
+  8. Handles segment drops ............................................ PASS
+  9. Handles segment delay ............................................ PASS
+  10. Handles duplicate segments ...................................... PASS
+  11. Handles truncated segments ...................................... PASS
+  12. Sends FIN when reading in EOF ................................... PASS
+  13. Tears down connection ........................................... PASS
+  14. Ping pong short messages between two clients .................... PASS
+  15. Flow control when client stops reading data ..................... PASS
+  16. Handles reordered segments ...................................... PASS
+  17. Interoperation with reference ................................... PASS
+  18. No excessive retransmissions (5 total) .......................... PASS
+  19. Ignores segments not within window .............................. PASS
+  20. Still sends data after receiving a FIN .......................... PASS
+  21. After reading EOF, can still receive segments ................... PASS
+  22. Handles sliding window .......................................... PASS
+  23. Talks to Google ................................................. PASS
+  24. Talks to Bing ................................................... PASS
+  25. Supports different send/receive windows ......................... PASS
+  26. Window size field set in header ................................. PASS
+  27. Supports multiple clients ....................................... PASS
+
+PASSED: 27/27
+
+SCORE: 270/270
