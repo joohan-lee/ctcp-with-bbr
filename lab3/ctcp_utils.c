@@ -22,6 +22,27 @@ long current_time() {
   return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
+uint64_t monotonic_current_time_us() {
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return ts.tv_sec * 1000000ll + ts.tv_nsec / 1000;
+}
+
+
+int64_t utils_need_timer_in_us(const struct timespec *last, int64_t interval) {
+  struct timespec ts;
+  uint64_t elapsed_us;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+
+  ts.tv_sec = ts.tv_sec - last->tv_sec;
+  ts.tv_nsec = ts.tv_nsec - last->tv_nsec;
+  elapsed_us = ts.tv_sec * 1000000ll + ts.tv_nsec / 1000; 
+  if (elapsed_us >= interval) {
+    return 0;
+  }
+  return interval - elapsed_us;
+}
+
 void print_hdr_ctcp(ctcp_segment_t *segment) {
   fprintf(stderr, "[cTCP] seqno: %d, ackno: %d, len: %d, flags:",
           ntohl(segment->seqno), ntohl(segment->ackno), ntohs(segment->len));

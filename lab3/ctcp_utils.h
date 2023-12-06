@@ -28,6 +28,19 @@ uint16_t cksum(const void *_data, uint16_t len);
 long current_time();
 
 /**
+ * Gets the current time in usec(microseconds).
+ */
+uint64_t monotonic_current_time_us();
+
+/**
+ * Returns the number of microseconds(usec) until the next timeout.
+ *
+ * last: The previous timeout.
+ * interval: The timeout interval.
+ */
+int64_t utils_need_timer_in_us(const struct timespec*, int64_t );
+
+/**
  * Prints out the headers of a cTCP segment. Expects the segment to come in
  * network-byte order. All fields are converted and printed out in host order,
  * except for the checksum.

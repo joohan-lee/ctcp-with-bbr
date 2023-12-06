@@ -1237,6 +1237,12 @@ void do_loop() {
       get_time(&last_timeout);
     }
 
+    /* Timer for pacing. 
+      Send a segment at every interval if there are segments in tx queue 
+      */
+    ctcp_pacing_timer();
+
+
     /* Delete connections if needed. */
     delete_all_connections();
   }

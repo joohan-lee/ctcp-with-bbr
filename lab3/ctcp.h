@@ -11,6 +11,8 @@
 #define CTCP_H
 
 #include "ctcp_sys.h"
+#include "ctcp_linked_list.h"
+#include "ctcp_bbr.h"
 
 /**
  * Maximum segment data size.
@@ -212,6 +214,80 @@ void ctcp_output(ctcp_state_t *state);
  */
 void ctcp_timer();
 
+/* Send a segment at pacing rate.
+  Called at doloop() in ctcp_sys_internals.c
+  Timer for pacing.
+  Send a segment at every interval if there are segments in tx queue 
+  */
+void ctcp_pacing_timer();
+
+/**
+ * Connection state.
+ *
+ * Stores per-connection information such as the current sequence number,
+ * unacknowledged packets, etc.
+ *
+ * You should add to this to store other fields you might need.
+ */
+typedef struct linked_list linked_list_t;
+typedef struct ctcp_bbr_model ctcp_bbr_model_t;
+struct ctcp_state {
+  struct ctcp_state *next;  /* Next in linked list */
+  struct ctcp_state **prev; /* Prev in linked list */
+
+  conn_t *conn;             /* Connection object -- needed in order to figure
+                               out destination when sending */
+  linked_list_t *segments;  /* Linked list of segments sent to this connection.
+                               It may be useful to have multiple linked lists
+                               for unacknowledged segments, segments that
+                               haven't been sent, etc. Lab 1 uses the
+                               stop-and-wait protocol and therefore does not
+                               necessarily need a linked list. You may remove
+                               this if this is the case for you */
+                            /* Consider this segments linked list as sender(transmission) buffer. */
+  
+  linked_list_t *waiting_segments; /* Linked list of segments that was failed to send
+                                      because receiver buffer is not available.
+                                    */
+  linked_list_t *received_segments; /* Receiver buffer. Once segment is received,
+                                      it is stored in received buffer(received_segments).
+                                      If STDOUT buffer is available, it moves to application
+                                      layer and should be removed from received buffer.
+                                      Note that data can be moved to application layer
+                                      only if it is in order.
+                                      This has received segments in its object of each node.
+                                      i.e. stores segments that are received, but not yet 
+                                      processed(output).*/
+
+  uint32_t curr_seqno; /* current sequence number of in-flight segment */
+  uint32_t curr_ackno; /* Last Acked number for the other side. */
+  uint32_t rx_next_output_seqno; /* Sequence number to output next time(=seqno waiting for output). */
+
+  uint32_t tx_in_flight_bytes; /* Outstanding bytes(sent but not acknowledged) = inflight bytes. 
+                                  When this host is Tx.
+                                */
+  uint32_t rx_waiting_bytes; /* size of data that was received but are waiting for being outputted. 
+                                Since they are not outputted, they are not acked yet.
+                               */
+
+  ctcp_config_t config; /* cTCP configuration struct. */
+
+  int32_t termination_state; /* TCP Connection Termination state */
+  uint32_t time_wait_in_ms; /* The host waits for a period of time equal to double 
+                        the maximum segment life (MSL) time, 
+                        to ensure the ACK it sent was received. 
+                        Here, MSL time is same as timer value in ctcp_config_t(=40ms=TIME_INTERVAL). */
+
+  ctcp_bbr_model_t* bbr_model; /* This contains ctcp_bbr_t and functions for bbr strategy such as on_ack, on_send. */
+  uint32_t cwnd; /* congestion control window size */
+
+  /* pacing */
+  uint64_t pacing_rate;        /* bandwidth (byte/sec) */
+  uint64_t pacing_gap_us;      /* This means gap(interval) between packets.
+                                 It depends on bbr mode(,so pacing gain). */
+  struct timespec pacing_last_timeout; /* This is for pacing timer. */
+};
+
 /* LOG */
 #define _log_info(...){ \
   fprintf(stderr, "[_INFO] ");\
@@ -227,22 +303,31 @@ void ctcp_timer();
  * Transmitter should know about transmitted time of each segment to retransmit in the future.
  *
 */
-typedef struct{
+typedef struct rate_sample ctcp_rs_t;
+
+struct ctcp_transmission_info{
   uint32_t time_elapsed; /* time elapsed from last transmission of this segment. */
   uint32_t num_of_transmission; /* The number of transmissions of this segment. (not only retransmission) */
+  uint64_t send_time_us;  /* time sent in usec. */
+  uint64_t ack_time_us;  /* time acked in usec. */
+  ctcp_rs_t* rs;
   ctcp_segment_t segment;
-} ctcp_transmission_info_t;
+};
+typedef struct ctcp_transmission_info ctcp_transmission_info_t;
 
 /* Define constant */
 #define HDR_CTCP_SEGMENT sizeof(ctcp_segment_t)
 
-// ctcp_segment_t* create_segment(ctcp_state_t* state, uint8_t flags, size_t data_sz, uint8_t data[]);
-// ctcp_transmission_info_t* create_segment(uint32_t seqno, uint32_t ackno, uint8_t flags, size_t data_sz, uint8_t data[]);
 ctcp_transmission_info_t* create_segment(ctcp_state_t *state, uint8_t flags, size_t data_sz, uint8_t data[]);
 int is_cksum_valid(ctcp_segment_t* segment, size_t len);
 int is_ack(ctcp_state_t* state, ctcp_segment_t* segment);
 void send_segment(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, size_t len);
 int is_new_data_segment(ctcp_state_t *state, ctcp_segment_t *rcvd_segment);
 void send_only_ack(ctcp_state_t* state, ctcp_segment_t* rcvd_segment);
+
+#define MAX(x, y) ( x > y ? x:y)
+#define MIN(x, y) ( x < y ? x:y)
+
+#define CTCP_INITIAL_CWND 10
 
 #endif /* CTCP_H */
