@@ -29,6 +29,7 @@ sudo ./ctcp -p 9999 -c localhost:8888
 
 # Large Binary Files
 # sudo ./ctcp -p 9999 -c localhost:8888 < original_binary
+# sudo ./ctcp -p 9999 -c localhost:8888 < file.txt
 
 # Memory leaks
 # sudo valgrind --leak-check=full --show-leak-kinds=all ./ctcp -p 9999 -c localhost:8888

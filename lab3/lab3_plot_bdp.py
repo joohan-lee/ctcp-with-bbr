@@ -2,6 +2,8 @@
 # CSCI551
 # How to use: python plot_bdp.py [path_to_log_file]
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys 
 	
@@ -24,7 +26,8 @@ while line != '':
 plt.plot(ts, bdp)
 plt.xlabel('Timestamp')
 plt.ylabel('BDP')
-plt.show()
+# plt.show()
+plt.savefig('bdp_plot.png')
 
 fin.close()
 print('done')	

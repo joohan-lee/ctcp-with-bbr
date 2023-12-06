@@ -17,6 +17,7 @@ sudo ./ctcp -s -p 8888
 
 # Large Binary Files
 # sudo ./ctcp -s -p 8888 > newly_created_test_binary
+# sudo ./ctcp -s -p 8888 > file_rcvd.txt
 
 # Memory leaks
 # sudo valgrind --leak-check=full --show-leak-kinds=all ./ctcp -s -p 8888

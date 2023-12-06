@@ -34,11 +34,6 @@ DST_FILE2="dst2_$RAND_SUFFIX.txt"
 echo "551 home folder: $HOME_FOLDER"
 cd $HOME_FOLDER/lab3
 
-echo "Starting mininet"
-tmux new -s mnet -d 
-tmux send -t mnet "sudo python lab3_topology.py" ENTER
-sleep 20
-
 echo "Starting server1"
 tmux new -s server1 -d 
 tmux send -t server1 "sudo ./go_to.sh server1" ENTER

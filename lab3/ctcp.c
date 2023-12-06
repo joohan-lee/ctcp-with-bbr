@@ -207,6 +207,7 @@ void ctcp_read(ctcp_state_t *state) {
 }
 
 void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
+  uint64_t receive_time_us = monotonic_current_time_us();
   assert(ntohs(segment->len) == len);
 
   _log_info("[RX]Segment is received. len: %lu ", len);
@@ -298,50 +299,36 @@ void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
   if(is_ack(state, segment)){
     _log_info("ACK segment received.\n");
     /* Remove all sent segments that has acked from transmission buffer(='state->segments' linked list)*/
-    uint32_t size_of_acked_segments = ll_remove_acked_segments(state->segments, segment->ackno);
-    _log_info("%d bytes of segment data was acked. tx_in_flight_bytes %d->", size_of_acked_segments,state->tx_in_flight_bytes);
-    state->tx_in_flight_bytes -= size_of_acked_segments;
-    fprintf(stderr,"%d.\n", state->tx_in_flight_bytes);
+    // uint32_t size_of_acked_segments = ll_remove_acked_segments(state->segments, segment->ackno);
+    // _log_info("%d bytes of segment data was acked. tx_in_flight_bytes %d->", size_of_acked_segments,state->tx_in_flight_bytes);
+    // state->tx_in_flight_bytes -= size_of_acked_segments;
+    // fprintf(stderr,"%d.\n", state->tx_in_flight_bytes);
 
-    // Send pending segments(= segments that wasn't sent due to lack of send_window(other's advertised buf size))
-    while(ll_length(state->waiting_segments)){
-      ll_node_t *curr_node = ll_front(state->waiting_segments);
-      // Before sending, first check if receiver's buffer is available.(Flow control)
-      ctcp_transmission_info_t *trans_info = (ctcp_transmission_info_t*)(curr_node->object);
-      ctcp_segment_t *pending_segment = &(trans_info->segment);
-      const uint32_t data_sz = ntohs(pending_segment->len) - HDR_CTCP_SEGMENT;
-
-      if((state->tx_in_flight_bytes + data_sz) > state->config.send_window){
-        // If the other side(=receiver)'s buffer is not available, stop sending.
-        _log_info("[Tx] If sending %d bytes of pending data, in-flight bytes(%d) will overflow receiver's window size(%d). Stop sending.\n",
-           data_sz, state->tx_in_flight_bytes, state->config.send_window);
-        break;
-      }
-      
-      // send pending segments after update up-to-date ackno and cksum.
-      ctcp_transmission_info_t *curr_trans_info = (ctcp_transmission_info_t*)(ll_remove(state->waiting_segments, curr_node));
+    ll_node_t* curr = ll_front(state->segments);
+    while(curr){
+      ctcp_transmission_info_t *curr_trans_info = (ctcp_transmission_info_t*)curr->object;
       ctcp_segment_t *curr_segment = &(curr_trans_info->segment);
-      state->tx_in_flight_bytes += (ntohs(curr_segment->len) - HDR_CTCP_SEGMENT);
-      // update segment's acknowledgement number to up-to-date ackno.
-      curr_segment->ackno = htonl(state->curr_ackno);
-      curr_segment->cksum = 0;
-      curr_segment->cksum = cksum(curr_segment, htons(curr_segment->len)); // update checksum since segment's ackno might be changed.
-      
-      int sent = conn_send(state->conn, curr_segment, ntohs(curr_segment->len));
-      if(sent == 0){
-        _log_info("[Tx] Nothing was sent.\n");
-      }else if(sent==-1){
-        _log_info("[Tx] Error occured while conn_send waiting segment.\n");
-      }else{
-        _log_info("[Tx] waiting segment was sent.\n");
-        print_hdr_ctcp(curr_segment);
+      if( (curr_segment->flags & TH_ACK) && ntohl(curr_segment->seqno) < ntohl(segment->ackno)){
+        uint16_t size_of_acked_segments = (ntohs(curr_segment->len) - HDR_CTCP_SEGMENT);
+        _log_info("%d bytes of segment data was acked. tx_in_flight_bytes %d->", size_of_acked_segments, state->tx_in_flight_bytes);
+        state->tx_in_flight_bytes -= size_of_acked_segments;
+        fprintf(stderr,"%d.\n", state->tx_in_flight_bytes);
+        curr_trans_info->ack_time_us = receive_time_us;
+        if(state->bbr_model) {
+          state->bbr_model->on_ack(state, curr_trans_info);
+        }
+        ll_node_t *remove_node = curr;
+        curr = curr->prev;
+        ll_remove(state->segments, remove_node);
+        free(curr_trans_info);
       }
-
-      // store transmitted segments to 'segments'(transmission buffer)
-      curr_trans_info->num_of_transmission += 1;
-      ll_add(state->segments, curr_trans_info);
-
+      if(curr==NULL){
+        break;
+      }else{
+        curr = curr->next;
+      }
     }
+
     free(segment);
     return;
   }

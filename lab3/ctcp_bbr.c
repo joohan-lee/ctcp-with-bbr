@@ -63,13 +63,14 @@ static uint64_t bdp_in_bytes(ctcp_bbr_t* bbr, uint32_t gain){
     uint64_t bdp = (uint64_t)bw * bbr->min_rtt_us;
 	fprintf(stderr, "bdp: %lu\n", bdp); // XXX
 
-	uint64_t cwnd;
+	uint64_t bdp_btyes;
 
-	/* Apply a gain to the given value, then remove the BW_SCALE shift. */
-	cwnd = (((bdp * gain) >> BBR_SCALE) * MAX_SEG_DATA_SIZE + BW_UNIT - 1) / BW_UNIT;
-	fprintf(stderr, "cwnd: %lu\n", cwnd); // XXX
+	bdp_btyes = (((bdp * gain) >> BBR_SCALE) * MAX_SEG_DATA_SIZE);
+	bdp_btyes >>= BW_SCALE;
+	// fprintf(stderr, "bdp_btyes: %lu\n", bdp_btyes); // XXX
+	// fprintf(stderr, "bdp_btyes >> BW_SCALE: %lu\n", bdp_btyes >> BW_SCALE); // XXX
 
-	return cwnd;
+	return bdp_btyes;
 }
 
 /* End cycle phase if it's time and/or we hit the phase's in-flight target. */
@@ -343,10 +344,15 @@ static void bbr_set_pacing_rate(ctcp_state_t* state, ctcp_bbr_t* bbr)
 	rate = bbr_rate_bytes_per_sec(rate, bbr->pacing_gain); // convert bw's format rate(pkts<<BW_SCALE/us) => bytes/sec
 
 	// Set pacing rate and gap btw pkts by pacing rate
-	if (bbr->mode != BBR_STARTUP || rate > state->pacing_rate){
+	// if (bbr->mode != BBR_STARTUP || rate > state->pacing_rate){
+	if(rate){
 		state->pacing_rate = rate;
 		state->pacing_gap_us = MAX(10, ((uint64_t)(MAX_SEG_DATA_SIZE)) * USEC_PER_SEC / rate);
+	}else{
+		//rate==10
+		state->pacing_gap_us = 0;
 	}
+	// }
 }
 
 static void bbr_on_send(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, ctcp_bbr_t* bbr){
