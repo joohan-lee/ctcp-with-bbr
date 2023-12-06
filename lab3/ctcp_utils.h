@@ -22,6 +22,37 @@
  */
 uint16_t cksum(const void *_data, uint16_t len);
 
+/* 
+ * Every time your code runs, it should output a log file that contains the timestamp and BDP. The file name should be 
+ * "bdp.txt" and the format of each line is "timestamp BDP". When your ctcp sends a packet, it should append a new line 
+ * to the file with current timestamp (get it from current_time() in ctcp_utils.h). You only need to log BDP for 
+ * sending so you don’t need to log for re-sending. The BDP should be **expressed in units of bits. This will help us 
+ * generate graphs to test if your implementation is working correctly. Here is what your output should look like. The 
+ * BDP and the timestamp should be separated by commas.
+ * 1508350555362,95820
+ * 1508350555389,96181
+ * 1508350555408,96374
+*/
+// void _ctcp_bbr_log_data(long, uint64_t);
+static inline void _ctcp_bbr_log_data(long timestamp, uint64_t bdp){
+  
+  FILE *file;
+
+  file = fopen("bdp.txt", "a");
+
+  // Check if the file is opened successfully
+  if (file == NULL) {
+      perror("Error opening the file");
+      return;
+  }
+
+  // Write data to the file with formatting
+  fprintf(file, "%lu,%lu\n", timestamp, bdp);
+
+  fclose(file);
+
+}
+
 /**
  * Gets the current time in milliseconds.
  */

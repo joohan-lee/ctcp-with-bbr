@@ -1,4 +1,5 @@
 #include "ctcp_utils.h"
+#include <stdio.h>
 
 uint16_t cksum(const void *_data, uint16_t len) {
   const uint8_t *data = _data;

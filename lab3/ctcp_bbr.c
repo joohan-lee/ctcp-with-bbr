@@ -61,11 +61,13 @@ static void bbr_update_bw(ctcp_bbr_t* bbr, ctcp_transmission_info_t* trans_info)
 static uint64_t bdp_in_bytes(ctcp_bbr_t* bbr, uint32_t gain){
 	uint32_t bw = bbr_max_bw(bbr); // This is bw based on number of pkts. Should multiply MAX_SEG_DATA_SIZE to present in bytes.
     uint64_t bdp = (uint64_t)bw * bbr->min_rtt_us;
+	fprintf(stderr, "bdp: %lu\n", bdp); // XXX
 
 	uint64_t cwnd;
 
 	/* Apply a gain to the given value, then remove the BW_SCALE shift. */
 	cwnd = (((bdp * gain) >> BBR_SCALE) * MAX_SEG_DATA_SIZE + BW_UNIT - 1) / BW_UNIT;
+	fprintf(stderr, "cwnd: %lu\n", cwnd); // XXX
 
 	return cwnd;
 }
@@ -347,13 +349,18 @@ static void bbr_set_pacing_rate(ctcp_state_t* state, ctcp_bbr_t* bbr)
 	}
 }
 
-static void bbr_on_send(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, void* bbr_object){
-	ctcp_bbr_t* bbr = (ctcp_bbr_t*)bbr_object;
+static void bbr_on_send(ctcp_state_t* state, ctcp_transmission_info_t* trans_info, ctcp_bbr_t* bbr){
 	trans_info->rs = malloc(sizeof(ctcp_rs_t));
 	
 	trans_info->rs->delivered = bbr->delivered_pkts_num;
 	trans_info->rs->prior_mstamp = bbr->prior_delivered_time_us;
 	trans_info->rs->is_app_limited = (bbr->app_limited_until > 0);
+
+	/* Log timestamp, BDP to bdp.txt */
+	long _timestamp = current_time();
+	uint64_t _bdp = bdp_in_bytes(bbr, BBR_UNIT);
+	
+	_ctcp_bbr_log_data(_timestamp, _bdp);
 }
 
 /**
@@ -413,7 +420,7 @@ static void ctcp_bbr_init(ctcp_state_t* state, ctcp_bbr_t* bbr) {
 }
 
 ctcp_bbr_model_t* ctcp_bbr_create_model(ctcp_state_t* state) {
-	fprintf(stderr, "TEST state->tx_in_flight_bytes: %d\n", state->tx_in_flight_bytes);
+	fprintf(stderr, "TEST state->tx_in_flight_bytes: %d\n", state->tx_in_flight_bytes); // XXX
     ctcp_bbr_model_t* bbr_model = (ctcp_bbr_model_t*)malloc(sizeof(ctcp_bbr_model_t));
     ctcp_bbr_t* bbr = (ctcp_bbr_t*)malloc(sizeof(ctcp_bbr_t));
     ctcp_bbr_init(state, bbr);

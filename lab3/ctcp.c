@@ -121,7 +121,7 @@ void send_front_segment_in_tx_buffer(ctcp_state_t* state){
       curr_segment->cksum = cksum(curr_segment, htons(curr_segment->len)); // update checksum since segment's ackno might be changed.
       
       if(state->bbr_model){
-        state->bbr_model->on_send(state, state->bbr_model->bbr_object, curr_trans_info);
+        state->bbr_model->on_send(state, curr_trans_info, state->bbr_model->bbr_object);
       }
       
       curr_trans_info->send_time_us = monotonic_current_time_us();

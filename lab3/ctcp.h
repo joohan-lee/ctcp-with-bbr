@@ -221,6 +221,8 @@ void ctcp_timer();
   */
 void ctcp_pacing_timer();
 
+FILE *bbr_data_log_file;
+
 /**
  * Connection state.
  *

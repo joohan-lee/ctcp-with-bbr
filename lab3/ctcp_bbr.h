@@ -140,7 +140,7 @@ typedef struct ctcp_state ctcp_state_t;
 typedef struct ctcp_transmission_info ctcp_transmission_info_t;
 struct ctcp_bbr_model {
     void* bbr_object;
-    void (*on_send)(ctcp_state_t*, ctcp_transmission_info_t*, void*);
+    void (*on_send)(ctcp_state_t*, ctcp_transmission_info_t*, ctcp_bbr_t*);
     void (*on_ack)(ctcp_state_t*, ctcp_transmission_info_t*);
     // void (*destory_bbr_model)(void*);
 };

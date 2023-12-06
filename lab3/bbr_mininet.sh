@@ -70,15 +70,23 @@ tmux kill-session -t client2
 tmux kill-session -t server1
 tmux kill-session -t server2
 
-# Verify files are the same
-GOOD_FILE_1=$(($(cmp -s $SRC_FILE1 $DST_FILE1))) 
-GOOD_FILE_2=$(($(cmp -s $SRC_FILE2 $DST_FILE2))) 
+dos2unix $DST_FILE1
+dos2unix $DST_FILE2
 
-if [ $((GOOD_FILE_1+GOOD_FILE_2)) -gt 0 ] 
-then 
-    echo "FAILED: Files are different!"
-    exit 1;
-fi
+# # Verify files are the same
+# GOOD_FILE_1=$(($(cmp -s $SRC_FILE1 $DST_FILE1))) 
+# GOOD_FILE_2=$(($(cmp -s $SRC_FILE2 $DST_FILE2))) 
+
+# if [ $((GOOD_FILE_1+GOOD_FILE_2)) -gt 0 ] 
+# then 
+#     echo "FAILED: Files are different!"
+#     exit 1;
+# fi
+
+echo "Running the first comp"
+cmp $SRC_FILE1 $DST_FILE1
+echo "Running the second comp"
+cmp $SRC_FILE2 $DST_FILE2
 
 # Calculate throughput 
 SEND_TIME1=$(($(stat -c %Y $DST_FILE1)-START_TIME)) 
