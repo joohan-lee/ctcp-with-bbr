@@ -33,7 +33,6 @@ uint16_t cksum(const void *_data, uint16_t len);
  * 1508350555389,96181
  * 1508350555408,96374
 */
-// void _ctcp_bbr_log_data(long, uint64_t);
 static inline void _ctcp_bbr_log_data(long timestamp, uint64_t bdp){
   
   FILE *file;
@@ -48,6 +47,7 @@ static inline void _ctcp_bbr_log_data(long timestamp, uint64_t bdp){
 
   // Write data to the file with formatting
   fprintf(file, "%lu,%lu\n", timestamp, bdp);
+  // fprintf(file, "%lu,%lu,%s\n", timestamp, bdp, bbr_mode); // If you want to know bbr_mode, add parameter with convert_bbr_mode_to_str function.
 
   fclose(file);
 
@@ -61,7 +61,7 @@ long current_time();
 /**
  * Gets the current time in usec(microseconds).
  */
-uint64_t monotonic_current_time_us();
+int64_t monotonic_current_time_us();
 
 /**
  * Returns the number of microseconds(usec) until the next timeout.

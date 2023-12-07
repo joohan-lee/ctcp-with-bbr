@@ -23,7 +23,7 @@ long current_time() {
   return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
-uint64_t monotonic_current_time_us() {
+int64_t monotonic_current_time_us() {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ts.tv_sec * 1000000ll + ts.tv_nsec / 1000;

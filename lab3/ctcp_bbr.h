@@ -27,7 +27,6 @@ typedef enum bbr_mode {
 	BBR_PROBE_RTT,	/* cut cwnd to min to probe min_rtt */
 } ctcp_bbr_mode_t;
 
-/* XXX */
 static inline
 const char* convert_bbr_mode_to_str(ctcp_bbr_mode_t mode) {
     switch (mode)
@@ -47,17 +46,17 @@ const char* convert_bbr_mode_to_str(ctcp_bbr_mode_t mode) {
 
 /* BBR congestion control block */
 typedef struct {
-    // TODO: Make it slim for ctcp version.
+    // Made this slim for ctcp version.
     uint32_t	min_rtt_us;	        /* min RTT in min_rtt_win_sec window */
     uint32_t delivered_pkts_num;
-    uint64_t prior_delivered_time_us;
+    int64_t prior_delivered_time_us;
     int32_t app_limited_until;
-    uint32_t	min_rtt_stamp;	        /* timestamp of min_rtt_us */
-    uint32_t	probe_rtt_done_stamp_us;   /* end time for BBR_PROBE_RTT mode */
+    int64_t	min_rtt_stamp;	        /* timestamp of min_rtt_us */
+    int64_t	probe_rtt_done_stamp_us;   /* end time for BBR_PROBE_RTT mode */
     ctcp_minmax_t bw;	/* Max recent delivery rate in pkts/uS << 24 */
     uint32_t	rtt_cnt;	    /* count of packet-timed rounds elapsed */
     // uint32_t     next_rtt_delivered; /* scb->tx.delivered at end of round */
-    uint64_t cycle_mstamp;  /* time of this cycle phase start */
+    int64_t cycle_mstamp;  /* time of this cycle phase start */
     uint32_t     mode:3;		     /* current bbr_mode in state machine */
     // 	prev_ca_state:3,     /* CA state on previous ACK */
     // 	packet_conservation:1,  /* use packet conservation? */
@@ -81,10 +80,13 @@ typedef struct {
     	unused_b:6;
     uint32_t	prior_cwnd;	/* prior cwnd upon entering loss recovery */
     uint32_t	full_bw;	/* recent bw, to estimate if pipe is full */
+    uint32_t full_bw_reached: 1;
+
 } ctcp_bbr_t;
 
 // static int bbr_bw_rtts	= CYCLE_LEN + 2; /* win len of bw filter (in rounds) */
 static const uint32_t bbr_min_rtt_win_sec = 10;	 /* min RTT filter window (in sec) */
+static const uint32_t bbr_min_rtt_win_us = 10000000llu;	 /* min RTT filter window (in usec) */
 static const uint32_t bbr_probe_rtt_mode_ms = 200;	 /* min ms at cwnd=4 in BBR_PROBE_RTT */
 // static int bbr_min_tso_rate	= 1200000;  /* skip TSO below here (bits/sec) */
 
@@ -101,7 +103,7 @@ static const int bbr_pacing_gain[] = { BBR_UNIT * 5 / 4, BBR_UNIT * 3 / 4,
 				 BBR_UNIT, BBR_UNIT, BBR_UNIT };
 static const uint32_t bbr_cycle_rand = 7;  /* randomize gain cycling phase over N phases */
 
-static const uint32_t	snd_cwnd_clamp = 0xffffffff; /* Do not allow cwnd to grow above this */
+static const uint32_t	snd_cwnd_clamp = 1000000000; /* Do not allow cwnd to grow above this */
 
 /* Try to keep at least this many packets in flight, if things go smoothly. For
  * smooth functioning, a sliding window protocol ACKing every other packet
@@ -136,13 +138,14 @@ struct rate_sample {
 };
 typedef struct rate_sample ctcp_rs_t;
 
+uint32_t bbr_max_bw(ctcp_bbr_t*);
+
 typedef struct ctcp_state ctcp_state_t;
 typedef struct ctcp_transmission_info ctcp_transmission_info_t;
 struct ctcp_bbr_model {
-    void* bbr_object;
+    ctcp_bbr_t* bbr_object;
     void (*on_send)(ctcp_state_t*, ctcp_transmission_info_t*, ctcp_bbr_t*);
     void (*on_ack)(ctcp_state_t*, ctcp_transmission_info_t*);
-    // void (*destory_bbr_model)(void*);
 };
 typedef struct ctcp_bbr_model ctcp_bbr_model_t;
 

@@ -71,6 +71,8 @@ ctcp_state_t *ctcp_init(conn_t *conn, ctcp_config_t *cfg) {
 
   state->bbr_model = ctcp_bbr_create_model(state);
 
+  fopen("bdp.txt", "w");
+
   return state;
 }
 
@@ -91,6 +93,11 @@ void ctcp_destroy(ctcp_state_t *state) {
   ll_destroy(state->waiting_segments);
   ll_free_objects(state->received_segments);
   ll_destroy(state->received_segments);
+
+  if(state->bbr_model){
+    free(state->bbr_model->bbr_object);
+    free(state->bbr_model);
+  }
 
   free(state);
   end_client();
@@ -299,10 +306,6 @@ void ctcp_receive(ctcp_state_t *state, ctcp_segment_t *segment, size_t len) {
   if(is_ack(state, segment)){
     _log_info("ACK segment received.\n");
     /* Remove all sent segments that has acked from transmission buffer(='state->segments' linked list)*/
-    // uint32_t size_of_acked_segments = ll_remove_acked_segments(state->segments, segment->ackno);
-    // _log_info("%d bytes of segment data was acked. tx_in_flight_bytes %d->", size_of_acked_segments,state->tx_in_flight_bytes);
-    // state->tx_in_flight_bytes -= size_of_acked_segments;
-    // fprintf(stderr,"%d.\n", state->tx_in_flight_bytes);
 
     ll_node_t* curr = ll_front(state->segments);
     while(curr){
@@ -483,13 +486,8 @@ void ctcp_pacing_timer(){
   ctcp_state_t *curr_state = state_list;
   /* Go through state_list to send packets if any in tx queues. */
   while(curr_state){
-    // printf("Seconds: %ld, Nanoseconds: %ld\n", curr_state->pacing_last_timeout.tv_sec, curr_state->pacing_last_timeout.tv_nsec);
-    // printf("curr_state->pacing_rate: %lu\n", curr_state->pacing_rate);
-    // printf("curr_state->pacing_gap_us: %ld\n", curr_state->pacing_gap_us);
-    // printf("gap: %ld\n", utils_need_timer_in_us(&(curr_state->pacing_last_timeout), curr_state->pacing_gap_us));
     if(curr_state->pacing_rate != 0 
       && utils_need_timer_in_us(&(curr_state->pacing_last_timeout), curr_state->pacing_gap_us) == 0){
-        // printf("Seconds: %ld, Nanoseconds: %ld\n", curr_state->pacing_last_timeout.tv_sec, curr_state->pacing_last_timeout.tv_nsec);
         send_front_segment_in_tx_buffer(curr_state);
         clock_gettime(CLOCK_MONOTONIC, &(curr_state->pacing_last_timeout));
     }
