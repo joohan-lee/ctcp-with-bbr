@@ -1003,8 +1003,9 @@ conn_t *tcp_handshake(void) { ASSERT_CLIENT_ONLY;
 
   /* Wait to receive SYN-ACK. */
   int r = recv_filter(config->socket, buf, MAX_PACKET_SIZE, 0, NULL);
-  if (r <= 0)
-    return NULL;
+  while (r <= 0){
+    r = recv_filter(config->socket, buf, MAX_PACKET_SIZE, 0, NULL);
+  }
 
   tcphdr_t *synack = (tcphdr_t *) (buf + IP_HDR_SIZE);
 
